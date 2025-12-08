@@ -1,3 +1,6 @@
+// Behavior Defines
+#define OUTPUT_DEVICE_DETAILS
+
 //External includes
 #include "SDL.h"
 #include "SDL_surface.h"
@@ -8,9 +11,8 @@
 //Project includes
 #include "Renderer.h"
 #include "DataTypes.h"
-
-// Behavior Defines
-#define OUTPUT_DEVICE_DETAILS
+#include "Effect.h"
+#include "Mesh.h"
 
 using namespace dae;
 
@@ -29,7 +31,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	}
 	else
 	{
-		std::cout << "DirectX initialization failed!\n";
+		std::cout << "DirectX initialization failed with error [" << result << "]!\n";
 	}
 
 	// TEMP RAW DATA
