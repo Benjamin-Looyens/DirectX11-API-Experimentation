@@ -31,11 +31,27 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 Renderer::~Renderer()
 {
-	
+	// Release in reverse order
+
+	if (m_pRenderTargetView) m_pRenderTargetView->Release();
+	if (m_pRenderTargetBuffer) m_pRenderTargetBuffer->Release();
+	if (m_pDepthStencilView) m_pDepthStencilView->Release();
+	if (m_pDepthStencilBuffer) m_pDepthStencilBuffer->Release();
+	if (m_pSwapChain) m_pSwapChain->Release();
+
+	if (m_pDeviceContext) {
+		m_pDeviceContext->ClearState();
+		m_pDeviceContext->Flush();
+		m_pDeviceContext->Release();
+	}
+
+	if (m_pDevice) m_pDevice->Release();
 }
 
 void Renderer::Update(const Timer* pTimer)
 {
+	if (!m_IsInitialized) return;
+
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
@@ -148,6 +164,9 @@ HRESULT Renderer::InitializeDirectX()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
+
+	// Release Temporary Pointers
+	pFactory->Release();
 
 	return S_OK;
 }
