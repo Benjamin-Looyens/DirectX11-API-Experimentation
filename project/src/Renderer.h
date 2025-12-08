@@ -15,6 +15,9 @@
 // Framework Headers
 #include "Timer.h"
 
+// Forward Declarations
+class Mesh;
+
 namespace dae
 {
 	class Renderer final
@@ -38,6 +41,8 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
+
+		Mesh* m_pMesh{};
 
 		//DIRECTX
 		HRESULT InitializeDirectX();

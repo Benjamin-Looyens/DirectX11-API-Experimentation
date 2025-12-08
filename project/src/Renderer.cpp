@@ -31,12 +31,21 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	{
 		std::cout << "DirectX initialization failed!\n";
 	}
+
+	// TEMP RAW DATA
+	std::vector<Vertex_PosCol> vertices{
+		{ {  0.0f,  0.5f, 0.5f }, colors::Red },
+		{ {  0.5f, -0.5f, 0.5f }, colors::Green },
+		{ { -0.5f, -0.5f, 0.5f }, colors::Blue }
+	};
+	std::vector<uint32_t> indices{ 0, 1, 2 };
+	std::wstring filePath{ L"resources/PosCol3D.fx" };
+	m_pMesh = new Mesh{ m_pDevice, filePath, vertices, indices };
 }
 
 Renderer::~Renderer()
 {
 	// Release in reverse order
-
 	if (m_pRenderTargetView) m_pRenderTargetView->Release();
 	if (m_pRenderTargetBuffer) m_pRenderTargetBuffer->Release();
 	if (m_pDepthStencilView) m_pDepthStencilView->Release();
@@ -50,6 +59,8 @@ Renderer::~Renderer()
 	}
 
 	if (m_pDevice) m_pDevice->Release();
+
+	delete m_pMesh;
 }
 
 void Renderer::Update(const Timer* pTimer)
@@ -62,18 +73,8 @@ void Renderer::Update(const Timer* pTimer)
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Render Logic
-	
-	// TEMP RAW DATA
-	std::vector<Vertex_PosCol> vertices{
-		{ {  0.0f,  0.5f, 0.5f }, colors::Red },
-		{ {  0.5f, -0.5f, 0.5f }, colors::Green },
-		{ { -0.5f, -0.5f, 0.5f }, colors::Blue }
-	};
-	std::vector<uint32_t> indices{ 0, 1, 2 };
-	std::wstring filePath{ L"resources/PosCol3D.fx" };
-	Mesh mesh{ m_pDevice, filePath, vertices, indices };
 
-	mesh.Render(m_pDeviceContext);
+	if (m_pMesh) m_pMesh->Render(m_pDeviceContext);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
