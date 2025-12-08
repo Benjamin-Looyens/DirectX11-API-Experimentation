@@ -40,6 +40,7 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, std::vecto
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
 	initData.pSysMem = indices.data();
+
 	result = pDevice->CreateBuffer(&bufferDesc, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
 }
@@ -69,8 +70,8 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext)
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
 	m_Effect.GetTechnique()->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p) {
-		m_Effect.GetTechnique()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+	for (UINT index{ }; index < techDesc.Passes; ++index) {
+		m_Effect.GetTechnique()->GetPassByIndex(index)->Apply(0, pDeviceContext);
 		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
 }

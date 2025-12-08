@@ -100,18 +100,18 @@ HRESULT Renderer::InitializeDirectX()
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG; // Why bitwise or equals (|=), when we initialize it as a 0, so doing = is just the same thing?
 #endif
 
-	// TODO : Test & Make sure it actually uses the GPU (Slides W1: first argument is pointer to selected "adapater")
 	HRESULT result = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, &featLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 	if (FAILED(result)) return result;
 
 #ifdef OUTPUT_DEVICE_DETAILS
-	IDXGIDevice* pDXGIDevice = nullptr;
+	// Console output chosen adapter
+	IDXGIDevice* pDXGIDevice{};
 	m_pDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
 
-	IDXGIAdapter* pAdapter = nullptr;
+	IDXGIAdapter* pAdapter{};
 	pDXGIDevice->GetAdapter(&pAdapter);
 
-	DXGI_ADAPTER_DESC adapterDesc;
+	DXGI_ADAPTER_DESC adapterDesc{};
 	pAdapter->GetDesc(&adapterDesc);
 	std::wcout << L"Adapter [" << adapterDesc.Description << L"] Chosen\n";
 #endif

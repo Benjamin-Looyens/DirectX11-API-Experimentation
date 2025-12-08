@@ -56,7 +56,7 @@ Effect::~Effect()
 {
 	HRESULT result;
 	ID3D10Blob* pErrorBlob{};
-	ID3DX11Effect* pEffect;
+	ID3DX11Effect* pEffect{};
 
 	DWORD shaderFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
@@ -71,20 +71,21 @@ Effect::~Effect()
 			const char* pErrors = static_cast<char*>(pErrorBlob->GetBufferPointer());
 
 			std::wstringstream ss;
-			for (unsigned int i = 0; i < pErrorBlob->GetBufferSize(); ++i)
-				ss << pErrors[i];
+			for (unsigned int index{ 0 }; index < pErrorBlob->GetBufferSize(); ++index) {
+				ss << pErrors[index];
+			}
 
 			OutputDebugStringW(ss.str().c_str());
 			pErrorBlob->Release();
 			pErrorBlob = nullptr;
 
-			std::wcout << ss.str() << std::endl;
+			std::wcout << ss.str() << L"\n";
 			return nullptr;
 		}
 		else {
 			std::wstringstream ss;
-			ss << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << filePath;
-			std::wcout << ss.str() << std::endl;
+			ss << L"EffectLoader: Failed to Create Effect From File!\nPath: " << filePath << L"\n";
+			std::wcout << ss.str();
 			return nullptr;
 		}
 	}
