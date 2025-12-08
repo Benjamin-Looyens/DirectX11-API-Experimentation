@@ -9,6 +9,9 @@
 #include "Renderer.h"
 #include "DataTypes.h"
 
+// Behavior Defines
+#define OUTPUT_DEVICE_DETAILS
+
 using namespace dae;
 
 Renderer::Renderer(SDL_Window* pWindow) :
@@ -98,6 +101,18 @@ HRESULT Renderer::InitializeDirectX()
 	HRESULT result = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, &featLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 	if (FAILED(result)) return result;
 
+#ifdef OUTPUT_DEVICE_DETAILS
+	IDXGIDevice* pDXGIDevice = nullptr;
+	m_pDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
+
+	IDXGIAdapter* pAdapter = nullptr;
+	pDXGIDevice->GetAdapter(&pAdapter);
+
+	DXGI_ADAPTER_DESC adapterDesc;
+	pAdapter->GetDesc(&adapterDesc);
+	std::wcout << L"Adapter [" << adapterDesc.Description << L"] Chosen\n";
+#endif
+
 	// Create DXGI Factory
 	IDXGIFactory1* pFactory{};
 	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory));
@@ -179,6 +194,11 @@ HRESULT Renderer::InitializeDirectX()
 
 	// Release Temporary Pointers
 	pFactory->Release();
+
+#ifdef OUTPUT_DEVICE_DETAILS
+	pAdapter->Release();
+	pDXGIDevice->Release();
+#endif
 
 	return S_OK;
 }
