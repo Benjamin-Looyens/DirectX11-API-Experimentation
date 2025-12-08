@@ -7,6 +7,7 @@
 
 //Project includes
 #include "Renderer.h"
+#include "DataTypes.h"
 
 using namespace dae;
 
@@ -59,6 +60,17 @@ void Renderer::Update(const Timer* pTimer)
 
 	// Render Logic
 	
+	// TEMP RAW DATA
+	std::vector<Vertex_PosCol> vertices{
+		{ {  0.0f,  0.5f, 0.5f }, colors::Red },
+		{ {  0.5f, -0.5f, 0.5f }, colors::Green },
+		{ { -0.5f, -0.5f, 0.5f }, colors::Blue }
+	};
+	std::vector<uint32_t> indices{ 0, 1, 2 };
+	std::wstring filePath{ L"resources/PosCol3D.fx" };
+	Mesh mesh{ m_pDevice, filePath, vertices, indices };
+
+	mesh.Render(m_pDeviceContext);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
