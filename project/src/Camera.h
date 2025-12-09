@@ -3,7 +3,10 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include "Maths.h"
+#include "Matrix.h"
+#include "Vector3.h"
+#include "Vector4.h"
+#include "MathHelpers.h"
 #include "Timer.h"
 
 namespace dae
@@ -110,7 +113,7 @@ namespace dae
 			return { right, up, forward, origin };
 		}
 
-		void Update(Timer* pTimer)
+		void Update(const Timer* pTimer)
 		{
 			updatedMatricesThisFrame = false;
 

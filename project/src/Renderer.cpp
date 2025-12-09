@@ -34,7 +34,10 @@ Renderer::Renderer(SDL_Window* pWindow) :
 		std::cout << "DirectX initialization failed with error [" << result << "]!\n";
 	}
 
-	// TEMP RAW DATA
+	// Camera Initialization
+	m_Camera.Initialize(m_Width, m_Height);
+
+	// Mesh Initialization
 	std::vector<Vertex_PosCol> vertices{
 		{ {  0.0f,  0.5f, 0.5f }, colors::Red },
 		{ {  0.5f, -0.5f, 0.5f }, colors::Green },
@@ -68,6 +71,9 @@ Renderer::~Renderer()
 void Renderer::Update(const Timer* pTimer)
 {
 	if (!m_IsInitialized) return;
+
+	// Update Members
+	m_Camera.Update(pTimer);
 
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };

@@ -14,6 +14,7 @@
 
 // Framework Headers
 #include "Timer.h"
+#include "Camera.h"
 
 // Forward Declarations
 class Mesh;
@@ -43,6 +44,8 @@ namespace dae
 		bool m_IsInitialized{ false };
 
 		Mesh* m_pMesh{};
+
+		Camera m_Camera;
 
 		//DIRECTX
 		HRESULT InitializeDirectX();
