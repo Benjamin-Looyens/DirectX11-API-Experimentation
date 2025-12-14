@@ -27,7 +27,7 @@ namespace dae
 		float aspectRatio{};
 
 		float movSpeed{ 10.0f };
-		float rotSpeed{ 0.6f };
+		float rotSpeed{ 7.5f }; // TODO : Fix rotation speed being frame dependent
 
 		Vector3 forward{Vector3::UnitZ};
 		Vector3 up{Vector3::UnitY};

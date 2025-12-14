@@ -1,3 +1,6 @@
+// Globals
+float4x4 gWorldViewProj : WorldViewProjection;
+
 // Input
 struct VS_INPUT
 {
@@ -16,7 +19,11 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
+
     output.Position = float4(input.Position, 1.0f);
+    //output.Position = mul(gWorldViewProj, output.Position);
+    output.Position = mul(output.Position, gWorldViewProj);
+
     output.Color = input.Color;
     return output;
 };

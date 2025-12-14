@@ -35,13 +35,13 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	}
 
 	// Camera Initialization
-	m_Camera.Initialize(m_Width, m_Height);
+	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -10.0f });
 
 	// Mesh Initialization
 	std::vector<Vertex_PosCol> vertices{
-		{ {  0.0f,  0.5f, 0.5f }, colors::Red },
-		{ {  0.5f, -0.5f, 0.5f }, colors::Green },
-		{ { -0.5f, -0.5f, 0.5f }, colors::Blue }
+		{ {  0.0f,  3.0f, 2.0f }, colors::Red },
+		{ {  3.0f, -3.0f, 2.0f }, colors::Green },
+		{ { -3.0f, -3.0f, 2.0f }, colors::Blue }
 	};
 	std::vector<uint32_t> indices{ 0, 1, 2 };
 	std::wstring filePath{ L"resources/PosCol3D.fx" };
@@ -75,14 +75,16 @@ void Renderer::Update(const Timer* pTimer)
 	// Update Members
 	m_Camera.Update(pTimer);
 
+	// Calculate Current Context Variables
+	Matrix worldViewProj = /*worldMat **/ m_Camera.viewMatrix * m_Camera.projectMatrix; // Cant be const due to function later
+
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Render Logic
-
-	if (m_pMesh) m_pMesh->Render(m_pDeviceContext);
+	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, worldViewProj);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);

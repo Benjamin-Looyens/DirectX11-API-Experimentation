@@ -14,6 +14,7 @@
 
 // Project Includes
 #include "Mesh.h"
+#include "Matrix.h"
 
 Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, std::vector<Vertex_PosCol> vertices, std::vector<uint32_t> indices)
 	: m_Effect{ pDevice, effectFilePath }
@@ -51,7 +52,7 @@ Mesh::~Mesh()
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProj)
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -66,6 +67,9 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext)
 
 	// Set Index Buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// Set WorldViewProjection Matrix
+	m_Effect.GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};

@@ -19,8 +19,10 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 	m_pEffect = LoadEffect(pDevice, filePath);
 	if (m_pEffect) {
 		m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+		m_pWorldViewProjMatrix = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 
 		if (!m_pTechnique->IsValid()) std::wcout << L"Technique not valid!\n";
+		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
 	}
 
 	// Initialize Vertex Layout Values
