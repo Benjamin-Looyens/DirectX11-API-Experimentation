@@ -1,5 +1,13 @@
 // Globals
 float4x4 gWorldViewProj : WorldViewProjection;
+Texture2D gDiffuse : DiffuseMap;
+
+SamplerState gSamPoint
+{
+    Filter = MIN_MAG_MIP_POINT; // Point | Linear | Anisotropic
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
 
 // Input
 struct VS_INPUT
@@ -23,7 +31,6 @@ VS_OUTPUT VS(VS_INPUT input)
     VS_OUTPUT output = (VS_OUTPUT)0;
 
     output.Position = float4(input.Position, 1.0f);
-    //output.Position = mul(gWorldViewProj, output.Position);
     output.Position = mul(output.Position, gWorldViewProj);
 
     output.Color = input.Color;
@@ -34,7 +41,9 @@ VS_OUTPUT VS(VS_INPUT input)
 // Pixel Shader
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    return float4(input.Color, 1.0f);
+    return gDiffuse.Sample(gSamPoint, input.UV);
+    //return float4(gDiffuse.Sample(gSamPoint, input.UV), 1.0f);
+    //return float4(input.Color, 1.0f);
 };
 
 // Technique
