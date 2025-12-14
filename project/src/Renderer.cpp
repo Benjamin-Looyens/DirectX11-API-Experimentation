@@ -38,14 +38,17 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -10.0f });
 
 	// Mesh Initialization
-	std::vector<Vertex_PosCol> vertices{
 		{ {  0.0f,  3.0f, 2.0f }, colors::Red },
 		{ {  3.0f, -3.0f, 2.0f }, colors::Green },
 		{ { -3.0f, -3.0f, 2.0f }, colors::Blue }
+	std::vector<Vertex> vertices{
+	
 	};
 	std::vector<uint32_t> indices{ 0, 1, 2 };
-	std::wstring filePath{ L"resources/PosCol3D.fx" };
-	m_pMesh = new Mesh{ m_pDevice, filePath, vertices, indices };
+
+	std::wstring effectPath{ L"resources/PosCol3D.fx" };
+	std::string diffusePath{ "resources/uv_grid_2.png" };
+	m_pMesh = new Mesh{ m_pDevice, effectPath, diffusePath, vertices, indices };
 }
 
 Renderer::~Renderer()

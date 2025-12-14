@@ -15,14 +15,15 @@
 // Project Includes
 #include "Mesh.h"
 #include "Matrix.h"
+#include "Texture.h"
 
-Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, std::vector<Vertex_PosCol> vertices, std::vector<uint32_t> indices)
+Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices)
 	: m_Effect{ pDevice, effectFilePath }
 {
 	// Create Vertex Buffer
 	D3D11_BUFFER_DESC bufferDesc{};
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = sizeof(Vertex_PosCol) * static_cast<uint32_t>(vertices.size());
+	bufferDesc.ByteWidth = sizeof(Vertex) * static_cast<uint32_t>(vertices.size());
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
@@ -44,12 +45,17 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, std::vecto
 
 	result = pDevice->CreateBuffer(&bufferDesc, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
+
+	m_pTexture = dae::Texture::LoadFromFile(pDevice, diffuseMapPath);
+	m_Effect.SetDiffuseMap(m_pTexture);
 }
 
 Mesh::~Mesh()
 {
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
+
+	delete m_pTexture;
 }
 
 void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProj)
@@ -61,7 +67,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewPro
 	pDeviceContext->IASetInputLayout(m_Effect.GetInputLayout());
 
 	// Set Vertex Buffer
-	constexpr UINT stride = sizeof(Vertex_PosCol);
+	constexpr UINT stride = sizeof(Vertex);
 	constexpr UINT offset = 0;
 	pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
 

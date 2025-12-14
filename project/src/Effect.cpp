@@ -1,3 +1,6 @@
+// Behavior Defines
+#define NOMINMAX // Necessary for not causing std::min and std::max conflicts for ColorRGB
+
 // External Includes
 #include <dxgi.h>
 #include <d3d11.h>
@@ -12,6 +15,7 @@
 
 // Project Includes
 #include "Effect.h"
+#include "Texture.h"
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 {
@@ -20,9 +24,11 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 	if (m_pEffect) {
 		m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 		m_pWorldViewProjMatrix = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+		m_pDiffuseMap = m_pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
 
 		if (!m_pTechnique->IsValid()) std::wcout << L"Technique not valid!\n";
 		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
+		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
 	}
 
 	// Initialize Vertex Layout Values
@@ -54,12 +60,18 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 
 Effect::~Effect()
 {
+	if (m_pDiffuseMap) m_pDiffuseMap->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
 	if (m_pTechnique) m_pTechnique->Release();
 	if (m_pEffect) m_pEffect->Release();
 }
 
- ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
+void Effect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
+{
+	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
+}
+
+ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
 {
 	HRESULT result;
 	ID3D10Blob* pErrorBlob{};
