@@ -6,6 +6,7 @@ struct VS_INPUT
 {
     float3 Position : POSITION;
     float3 Color : COLOR;
+    float2 UV : TEXCOORD;
 };
 
 // Output
@@ -13,6 +14,7 @@ struct VS_OUTPUT
 {
     float4 Position : SV_POSITION;
     float3 Color : COLOR;
+    float2 UV : TEXCOORD;
 };
 
 // Vertex Shader
@@ -25,6 +27,7 @@ VS_OUTPUT VS(VS_INPUT input)
     output.Position = mul(output.Position, gWorldViewProj);
 
     output.Color = input.Color;
+    output.UV = input.UV;
     return output;
 };
 
