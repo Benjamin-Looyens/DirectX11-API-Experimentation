@@ -75,15 +75,20 @@ void Renderer::Update(const Timer* pTimer)
 
 	// Update Members
 	m_Camera.Update(pTimer);
+
+	if (m_DoRotation) {
+		m_RotCounter += std::fmod(pTimer->GetElapsed(), PI_2);
+		m_WorldTransform.SetRotationY(m_RotCounter);
+	}
 }
 
 
-void Renderer::Render() const
+void Renderer::Render()
 {
 	if (!m_IsInitialized) return;
 
 	// Calculate Current Context Variables
-	Matrix worldViewProj = /*worldMat **/ m_Camera.viewMatrix * m_Camera.projectMatrix; // Cant be const due to function later
+	Matrix worldViewProj = m_WorldTransform.GetFull() * m_Camera.viewMatrix* m_Camera.projectMatrix; // Cant be const due to function later
 
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
@@ -114,6 +119,22 @@ void dae::Renderer::CycleFiltering()
 		break;
 	case FilterTechnique::ANISOTROPIC:
 		std::cout << "ANISOTROPIC\n";
+		break;
+	}
+}
+
+void dae::Renderer::ToggleRotation()
+{
+	m_DoRotation = !m_DoRotation;
+
+	std::cout << "Mesh Rotation = ";
+	switch (m_DoRotation)
+	{
+	case true:
+		std::cout << "ON\n";
+		break;
+	case false:
+		std::cout << "OFF\n";
 		break;
 	}
 }

@@ -34,9 +34,11 @@ namespace dae
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
 		void Update(const Timer* pTimer);
-		void Render() const;
+		void Render(); // HACK : Isn't const due to world transform needing to be calculated
 
 		void CycleFiltering();
+
+		void ToggleRotation();
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -47,10 +49,16 @@ namespace dae
 		bool m_IsInitialized{ false };
 
 		Mesh* m_pMesh{};
+		Transform m_WorldTransform{}; // TODO : Store in mesh
 
 		Camera m_Camera;
 
 		FilterTechnique m_CurTechnique{ FilterTechnique::POINT };
+
+		float m_RotCounter{};
+
+		// Toggles
+		bool m_DoRotation{ false };
 
 		// DirectX
 		HRESULT InitializeDirectX();
