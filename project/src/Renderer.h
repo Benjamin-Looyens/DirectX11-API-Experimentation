@@ -33,10 +33,10 @@ namespace dae
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
-		void CycleFiltering();
-
 		void Update(const Timer* pTimer);
 		void Render() const;
+
+		void CycleFiltering();
 
 	private:
 		SDL_Window* m_pWindow{};

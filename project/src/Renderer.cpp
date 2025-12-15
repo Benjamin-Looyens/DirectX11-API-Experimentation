@@ -87,34 +87,18 @@ Renderer::~Renderer()
 	delete m_pMesh;
 }
 
-void dae::Renderer::CycleFiltering()
-{
-	// Yuck
-	m_CurTechnique = static_cast<FilterTechnique>((static_cast<uint8_t>(m_CurTechnique) + 1) % static_cast<uint8_t>(FilterTechnique::TECHNIQUE_COUNT));
-
-	// Yuck part 2
-	std::cout << "Filtering Technique = ";
-	switch (m_CurTechnique)
-	{
-	case FilterTechnique::POINT:
-		std::cout << "POINT\n";
-		m_pMesh;
-		break;
-	case FilterTechnique::LINEAR:
-		std::cout << "LINEAR\n";
-		break;
-	case FilterTechnique::ANISOTROPIC:
-		std::cout << "ANISOTROPIC\n";
-		break;
-	}
-}
-
 void Renderer::Update(const Timer* pTimer)
 {
 	if (!m_IsInitialized) return;
 
 	// Update Members
 	m_Camera.Update(pTimer);
+}
+
+
+void Renderer::Render() const
+{
+	if (!m_IsInitialized) return;
 
 	// Calculate Current Context Variables
 	Matrix worldViewProj = /*worldMat **/ m_Camera.viewMatrix * m_Camera.projectMatrix; // Cant be const due to function later
@@ -131,11 +115,25 @@ void Renderer::Update(const Timer* pTimer)
 	m_pSwapChain->Present(0, 0);
 }
 
-
-void Renderer::Render() const
+void dae::Renderer::CycleFiltering()
 {
-	if (!m_IsInitialized)
-		return;
+	// Yuck
+	m_CurTechnique = static_cast<FilterTechnique>((static_cast<uint8_t>(m_CurTechnique) + 1) % static_cast<uint8_t>(FilterTechnique::TECHNIQUE_COUNT));
+
+	// Yuck part 2
+	std::cout << "Filtering Technique = ";
+	switch (m_CurTechnique)
+	{
+	case FilterTechnique::POINT:
+		std::cout << "POINT\n";
+		break;
+	case FilterTechnique::LINEAR:
+		std::cout << "LINEAR\n";
+		break;
+	case FilterTechnique::ANISOTROPIC:
+		std::cout << "ANISOTROPIC\n";
+		break;
+	}
 }
 
 HRESULT Renderer::InitializeDirectX()
