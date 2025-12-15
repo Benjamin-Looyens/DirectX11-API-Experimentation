@@ -13,6 +13,7 @@
 #include "DataTypes.h"
 #include "Effect.h"
 #include "Mesh.h"
+#include "Utils.h"
 
 using namespace dae;
 
@@ -35,35 +36,16 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	}
 
 	// Camera Initialization
-	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -10.0f });
+	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -50.0f });
 
 	// Mesh Initialization
-	std::vector<Vertex> vertices{
-		{ { -3.0f,  3.0f, -2.0f }, colors::White, { 0.0f, 0.0f } },	// 0
-		{ {  0.0f,  3.0f, -2.0f }, colors::White, { 0.5f, 0.0f } },	// 1
-		{ {  3.0f,  3.0f, -2.0f }, colors::White, { 1.0f, 0.0f } },	// 2
-		{ { -3.0f,  0.0f, -2.0f }, colors::White, { 0.0f, 0.5f } },	// 3
-		{ {  0.0f,  0.0f, -2.0f }, colors::White, { 0.5f, 0.5f } },	// 4
-		{ {  3.0f,  0.0f, -2.0f }, colors::White, { 1.0f, 0.5f } },	// 5
-		{ { -3.0f, -3.0f, -2.0f }, colors::White, { 0.0f, 1.0f } },	// 6
-		{ {  0.0f, -3.0f, -2.0f }, colors::White, { 0.5f, 1.0f } },	// 7
-		{ {  3.0f, -3.0f, -2.0f }, colors::White, { 1.0f, 1.0f } },	// 8
+	std::vector<Vertex> vertices{};
+	std::vector<uint32_t> indices{};
 
-	};
-	
-	std::vector<uint32_t> indices {
-			3, 0, 4,
-			0, 1, 4,
-			4, 1, 5,
-			1, 2, 5,
-			6, 3, 7,
-			3, 4, 7,
-			7, 4, 8,
-			4, 5, 8,
-	};
+	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
 
 	std::wstring effectPath{ L"resources/PosCol3D.fx" };
-	std::string diffusePath{ "resources/uv_grid_2.png" };
+	std::string diffusePath{ "resources/vehicle_diffuse.png" };
 	m_pMesh = new Mesh{ m_pDevice, effectPath, diffusePath, vertices, indices };
 }
 

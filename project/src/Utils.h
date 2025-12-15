@@ -1,6 +1,9 @@
 #pragma once
 #include <fstream>
 #include "Math.h"
+#include "DataTypes.h"
+
+#define OBJ_NO_NORMALS
 
 namespace dae
 {
@@ -9,14 +12,16 @@ namespace dae
 		//Just parses vertices and indices
 #pragma warning(push)
 #pragma warning(disable : 4505) //Warning unreferenced local function
-		static bool ParseOBJ(const std::string& filename, std::vector<Vertex_In>& vertices, std::vector<uint32_t>& indices, bool flipAxisAndWinding = true)
+		static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool flipAxisAndWinding = true)
 		{
 			std::ifstream file(filename);
 			if (!file)
 				return false;
 
 			std::vector<Vector3> positions{};
+#ifndef OBJ_NO_NORMALS
 			std::vector<Vector3> normals{};
+#endif
 			std::vector<Vector2> UVs{};
 
 			vertices.clear();
@@ -54,7 +59,9 @@ namespace dae
 					float x, y, z;
 					file >> x >> y >> z;
 
+#ifndef OBJ_NO_NORMALS
 					normals.emplace_back(x, y, z);
+#endif
 				}
 				else if (sCommand == "f")
 				{
@@ -64,7 +71,7 @@ namespace dae
 					//add the material index as attibute to the attribute array
 					//
 					// Faces or triangles
-					Vertex_In vertex{};
+					Vertex vertex{};
 					size_t iPosition, iTexCoord, iNormal;
 
 					uint32_t tempIndices[3];
@@ -72,7 +79,7 @@ namespace dae
 					{
 						// OBJ format uses 1-based arrays
 						file >> iPosition;
-						vertex.position = positions[iPosition - 1];
+						vertex.pos = positions[iPosition - 1];
 
 						if ('/' == file.peek())//is next in buffer ==  '/' ?
 						{
@@ -84,14 +91,15 @@ namespace dae
 								file >> iTexCoord;
 								vertex.uv = UVs[iTexCoord - 1];
 							}
-
 							if ('/' == file.peek())
 							{
 								file.ignore();
 
 								// Optional vertex normal
 								file >> iNormal;
+#ifndef OBJ_NO_NORMALS
 								vertex.normal = normals[iNormal - 1];
+#endif
 							}
 						}
 
@@ -123,13 +131,13 @@ namespace dae
 				uint32_t index1 = indices[size_t(i) + 1];
 				uint32_t index2 = indices[size_t(i) + 2];
 
-				const Vector3& p0 = vertices[index0].position;
-				const Vector3& p1 = vertices[index1].position;
-				const Vector3& p2 = vertices[index2].position;
+				const Vector3& p0 = vertices[index0].pos;
+				const Vector3& p1 = vertices[index1].pos;
+				const Vector3& p2 = vertices[index2].pos;
 				const Vector2& uv0 = vertices[index0].uv;
 				const Vector2& uv1 = vertices[index1].uv;
 				const Vector2& uv2 = vertices[index2].uv;
-
+#ifndef OBJ_NO_NORMALS
 				const Vector3 edge0 = p1 - p0;
 				const Vector3 edge1 = p2 - p0;
 				const Vector2 diffX = Vector2(uv1.x - uv0.x, uv2.x - uv0.x);
@@ -140,18 +148,23 @@ namespace dae
 				vertices[index0].tangent += tangent;
 				vertices[index1].tangent += tangent;
 				vertices[index2].tangent += tangent;
+#endif
 			}
-
+			;
 			//Create the Tangents (reject)
 			for (auto& v : vertices)
 			{
+#ifndef OBJ_NO_NORMALS
 				v.tangent = Vector3::Reject(v.tangent, v.normal).Normalized();
+#endif
 
 				if(flipAxisAndWinding)
 				{
-					v.position.z *= -1.f;
+					v.pos.z *= -1.f;
+#ifndef OBJ_NO_NORMALS
 					v.normal.z *= -1.f;
 					v.tangent.z *= -1.f;
+#endif
 				}
 
 			}
