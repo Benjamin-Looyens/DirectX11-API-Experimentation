@@ -22,7 +22,7 @@ class Mesh;
 
 
 namespace dae {
-	class RendererHardware;
+	class RendererSoftware;
 	class RendererDirectX;
 	class Timer;
 
@@ -60,12 +60,14 @@ namespace dae {
 
 	private:
 		// Renderers
-		RendererDirectX* pDirectX{};
-		RendererHardware* pHardware{};
+		RendererDirectX* m_pDirectX{};
+		RendererSoftware* m_pSoftware{};
 
 		// Common Members
 		Camera m_Camera;
 		std::vector<Mesh> m_Meshes{};
+		float m_RotTimer{};
+
 		RenderSettings m_Settings{};
 
 		bool m_UseSoftware{ false };
