@@ -15,6 +15,7 @@
 // Framework Headers
 #include "Timer.h"
 #include "Camera.h"
+#include "DataTypes.h"
 
 // Forward Declarations
 class Mesh;
@@ -32,6 +33,8 @@ namespace dae
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
+		void CycleFiltering();
+
 		void Update(const Timer* pTimer);
 		void Render() const;
 
@@ -47,7 +50,9 @@ namespace dae
 
 		Camera m_Camera;
 
-		//DIRECTX
+		FilterTechnique m_CurTechnique{ FilterTechnique::POINT };
+
+		// DirectX
 		HRESULT InitializeDirectX();
 
 		ID3D11Device* m_pDevice{};

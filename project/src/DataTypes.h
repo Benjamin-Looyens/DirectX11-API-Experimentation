@@ -6,6 +6,7 @@
 #include "Vector4.h"
 #include "ColorRGB.h"
 
+// Basic Data Types
 struct Vertex
 {
 	dae::Vector3 pos{};
@@ -17,4 +18,14 @@ struct Vertex_Out
 {
 	dae::Vector4 pos{};
 	dae::ColorRGB color{};
+};
+
+// Enums
+enum class FilterTechnique
+{
+	POINT,
+	LINEAR,
+	ANISOTROPIC,
+
+	TECHNIQUE_COUNT
 };

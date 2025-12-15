@@ -87,6 +87,28 @@ Renderer::~Renderer()
 	delete m_pMesh;
 }
 
+void dae::Renderer::CycleFiltering()
+{
+	// Yuck
+	m_CurTechnique = static_cast<FilterTechnique>((static_cast<uint8_t>(m_CurTechnique) + 1) % static_cast<uint8_t>(FilterTechnique::TECHNIQUE_COUNT));
+
+	// Yuck part 2
+	std::cout << "Filtering Technique = ";
+	switch (m_CurTechnique)
+	{
+	case FilterTechnique::POINT:
+		std::cout << "POINT\n";
+		m_pMesh;
+		break;
+	case FilterTechnique::LINEAR:
+		std::cout << "LINEAR\n";
+		break;
+	case FilterTechnique::ANISOTROPIC:
+		std::cout << "ANISOTROPIC\n";
+		break;
+	}
+}
+
 void Renderer::Update(const Timer* pTimer)
 {
 	if (!m_IsInitialized) return;
