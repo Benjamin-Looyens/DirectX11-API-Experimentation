@@ -40,6 +40,21 @@ namespace dae {
 		void Update(const Timer* pTimer);
 		void Render() const;
 
+		// Toggles
+		void ToggleRotation();
+		void ToggleUniformClear();
+		
+		void ToggleFireMesh();
+
+		void ToggleNormalMap();
+		void ToggleDepthRender();
+		void ToggleBoundsRender();
+
+		// Cycles
+		void CycleCullMode();
+		void CycleFilterTechnique();
+		void CycleLightingMode();
+
 		struct RenderSettings
 		{
 			// Shared
@@ -66,10 +81,10 @@ namespace dae {
 		// Common Members
 		Camera m_Camera;
 		std::vector<Mesh> m_Meshes{};
-		float m_RotTimer{};
-
 		RenderSettings m_Settings{};
 
+		// Dual Exclusive Members
+		float m_RotTimer{};
 		bool m_UseSoftware{ false };
 	};
 }
