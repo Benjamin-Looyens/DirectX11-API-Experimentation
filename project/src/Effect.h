@@ -22,7 +22,9 @@ public:
 	~Effect();
 
 	ID3DX11Effect* const GetEffect() const { return m_pEffect; }
-	ID3DX11EffectTechnique* const GetTechnique() const { return m_pTechnique; };
+	ID3DX11EffectTechnique* const GetPoint() const { return m_pPoint; };
+	ID3DX11EffectTechnique* const GetLinear() const { return m_pLinear; };
+	ID3DX11EffectTechnique* const GetAnisotropic() const { return m_pAnisotropic; };
 	ID3D11InputLayout* const GetInputLayout() const { return m_pInputLayout; };
 	ID3DX11EffectMatrixVariable* const GetWorldViewProj() const { return m_pWorldViewProjMatrix; };
 
@@ -32,7 +34,9 @@ public:
 
 private:
 	ID3DX11Effect* m_pEffect{};
-	ID3DX11EffectTechnique* m_pTechnique{};
+	ID3DX11EffectTechnique* m_pPoint{};
+	ID3DX11EffectTechnique* m_pLinear{};
+	ID3DX11EffectTechnique* m_pAnisotropic{};
 	ID3D11InputLayout* m_pInputLayout{};
 
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrix{};

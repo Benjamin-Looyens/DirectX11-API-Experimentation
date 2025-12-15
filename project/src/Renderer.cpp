@@ -109,7 +109,7 @@ void Renderer::Render() const
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Render Logic
-	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, worldViewProj);
+	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, worldViewProj, m_CurTechnique);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);

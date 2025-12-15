@@ -22,11 +22,15 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 	// Initialize Underlying DX11 Effect
 	m_pEffect = LoadEffect(pDevice, filePath);
 	if (m_pEffect) {
-		m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+		m_pPoint = m_pEffect->GetTechniqueByName("PointTechnique");
+		m_pLinear = m_pEffect->GetTechniqueByName("LinearTechnique");
+		m_pAnisotropic = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
 		m_pWorldViewProjMatrix = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 		m_pDiffuseMap = m_pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
 
-		if (!m_pTechnique->IsValid()) std::wcout << L"Technique not valid!\n";
+		if (!m_pPoint->IsValid()) std::wcout << L"Point Technique not valid!\n";
+		if (!m_pLinear->IsValid()) std::wcout << L"Linear Technique not valid!\n";
+		if (!m_pAnisotropic->IsValid()) std::wcout << L"Anisotropic Technique not valid!\n";
 		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
 		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
 	}
@@ -52,17 +56,20 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 
 	// Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
-	m_pTechnique->GetPassByIndex(0)->GetDesc(&passDesc);
+	m_pPoint->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same, HOWEVER it is strange laying it out based on one of the techniques?
 
 	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
 	if (FAILED(result)) assert(false && "Failed to Create Input Layout!");
+
 }
 
 Effect::~Effect()
 {
 	if (m_pDiffuseMap) m_pDiffuseMap->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
-	if (m_pTechnique) m_pTechnique->Release();
+	if (m_pAnisotropic) m_pPoint->Release();
+	if (m_pLinear) m_pPoint->Release();
+	if (m_pPoint) m_pPoint->Release();
 	if (m_pEffect) m_pEffect->Release();
 }
 

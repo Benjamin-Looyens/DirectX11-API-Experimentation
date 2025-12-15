@@ -58,7 +58,7 @@ Mesh::~Mesh()
 	delete m_pTexture;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProj)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProj, FilterTechnique technique)
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -79,9 +79,24 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewPro
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
-	m_Effect.GetTechnique()->GetDesc(&techDesc);
+	ID3DX11EffectTechnique* pTechnique{};
+
+	switch (technique)
+	{
+	case FilterTechnique::POINT:
+		pTechnique = m_Effect.GetPoint();
+		break;
+	case FilterTechnique::LINEAR:
+		pTechnique = m_Effect.GetLinear();
+		break;
+	case FilterTechnique::ANISOTROPIC:
+		pTechnique = m_Effect.GetAnisotropic();
+		break;
+	}
+
+	pTechnique->GetDesc(&techDesc);
 	for (UINT index{ }; index < techDesc.Passes; ++index) {
-		m_Effect.GetTechnique()->GetPassByIndex(index)->Apply(0, pDeviceContext);
+		pTechnique->GetPassByIndex(index)->Apply(0, pDeviceContext);
 		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 	}
 }
