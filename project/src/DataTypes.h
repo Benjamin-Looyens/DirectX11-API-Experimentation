@@ -22,13 +22,32 @@ struct Vertex_Out
 };
 
 // Enums
-enum class FilterTechnique
+enum class FilterTechnique : uint8_t
 {
 	POINT,
 	LINEAR,
 	ANISOTROPIC,
 
 	TECHNIQUE_COUNT
+};
+
+enum class LightingMode : uint8_t
+{
+	OBSERVED_AREA,
+	DIFFUSE,
+	SPECULAR,
+	COMBINED,
+
+	MODE_COUNT
+};
+
+enum class CullMode : uint8_t
+{
+	BACK_FACE,
+	FRONT_FACE,
+	NONE,
+
+	MODE_COUNT
 };
 
 // Classes

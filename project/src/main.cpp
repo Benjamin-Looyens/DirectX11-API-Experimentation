@@ -73,6 +73,20 @@ int main(int argc, char* args[])
 					pRenderer->CycleFiltering();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F5)
 					pRenderer->ToggleRotation();
+
+				// (Shared) Toggle between DirectX& Software Rasterizer(‘F1’)
+				// (Shared) Toggle Rotation(On / Off) (‘F2’)
+				// (Shared) Toggle Uniform Clear Color(On / Off) (‘F10’)
+				// (Shared) Toggle Print FPS(On / Off) (‘F11’)
+				// (Shared) Cycle Cull Modes(back - face, front - face, none) (‘F9’)
+				// 
+				// (Hardware Only) Toggle FireFX mesh(On / Off) (‘F3’)
+				// (Hardware Only) Toggle between Texture Sampling States(point - linear - anisotropic) (‘F4’)
+				// 
+				// (Software Only) Cycle Shading Mode(Combined / ObservedArea / Diffuse / Specular) (‘F5’)
+				// (Software Only) Toggle NormalMap(On / Off) (‘F6’)
+				// (Software Only) Toggle DepthBuffer Visualization(On / Off) (‘F7’)
+				// (Software Only) Toggle BoundingBox Visualization(On / Off) (‘F8’)
 				break;
 			default: ;
 			}

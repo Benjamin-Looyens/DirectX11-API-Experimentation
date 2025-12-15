@@ -11,6 +11,7 @@ set(SOURCES
     "src/Mesh.cpp"
     "src/Effect.cpp"
     "src/Texture.cpp"
+    "src/DualRasterizer.cpp"
 )
 
 # Create the executable
