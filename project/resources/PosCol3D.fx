@@ -76,9 +76,9 @@ VS_OUTPUT VS(VS_INPUT input)
 };
 
 // Shading Functions
-float ObservedArea(VS_OUTPUT input)
+float ObservedArea(VS_OUTPUT input, float3 normal)
 {
-    return saturate(dot(input.Normal, -gLightDir));
+    return saturate(dot(normal, -gLightDir));
 };
 
 float3 LambertDiffuse(VS_OUTPUT input, SamplerState sam)
@@ -88,31 +88,46 @@ float3 LambertDiffuse(VS_OUTPUT input, SamplerState sam)
     return mul((gLightIntensity / gPI), diffuse);
 };
 
-float3 SpecularPhong(VS_OUTPUT input, SamplerState sam)
+float3 SpecularPhong(VS_OUTPUT input, SamplerState sam, float3 normal)
 {
-    //const float ks = meshTexture.pSpecular->Sample(vert.uv).r;
-    //const float exp = meshTexture.pGloss->Sample(vert.uv).r;
-    //
-    //const Vector3 reflect = lightDir - (2.0f * (Vector3::Dot(lightDir, normal) * normal));
-    //const float cosAngle = std::max(Vector3::Dot(reflect.Normalized(), vert.viewDir), 0.0f);
-    //const float specular = ks * std::powf(cosAngle, exp * SHININESS);
-
     float ks = gSpecular.Sample(sam, input.UV).x;
     float exp = gGloss.Sample(sam, input.UV).x;
     
     //float3 viewDir = normalize(input.World - gCameraPos);
-    float3 lightReflect = reflect(-gLightDir, input.Normal);
+    float3 lightReflect = reflect(-gLightDir, normal);
     float cosAngle = saturate(dot(normalize(lightReflect), input.ViewDir));
 
     return mul(ks, pow(cosAngle, mul(exp, gShininess)));
 };
 
+float3 SampleNormal(VS_OUTPUT input, SamplerState sam)
+{
+    //const Vector3 binormal = Vector3::Cross(vert.normal, vert.tangent);
+    //const Matrix tangentSpace = { vert.tangent, binormal, vert.normal, Vector3::Zero };
+    //Vector3 normalMapSample = { meshTexture.pNormal->Sample(vert.uv) };
+    //normalMapSample = 2.0f * normalMapSample - Vector3{ 1.0f, 1.0f, 1.0f };
+    //normalMapSample = tangentSpace.TransformVector(normalMapSample).Normalized();
+
+    //float3 binormal = cross(input.Tangent, input.Normal);
+    float3 binormal = cross(input.Normal, input.Tangent);
+    float3x3 tangentSpace = float3x3(input.Tangent, binormal, input.Normal);
+
+    float3 normalMapSample = gNormal.Sample(sam, input.UV);
+    normalMapSample = mul(2.0f, normalMapSample) - float3(1.0f, 1.0f, 1.0f);
+    normalMapSample = mul(normalize(normalMapSample), tangentSpace);
+
+    //return input.Normal;
+    return normalMapSample;
+}
+
 // Pixel Shaders
 float4 UniformPixelShader(VS_OUTPUT input, SamplerState sam)
 {
-    float observedArea = ObservedArea(input);
+    float3 normal = SampleNormal(input, sam);
+
+    float observedArea = ObservedArea(input, normal);
     float3 lambert = LambertDiffuse(input, sam); 
-    float3 phong = SpecularPhong(input, sam);
+    float3 phong = SpecularPhong(input, sam, normal);
 
     //return float4(mul(ObservedArea(input), LambertDiffuse(input, gSamPoint)), 1.0f); // Lambert
     //return float4(phong, 1.0f); // Specular
