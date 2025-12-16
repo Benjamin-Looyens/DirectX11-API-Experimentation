@@ -18,11 +18,9 @@
 #include "Texture.h"
 #include "Effect.h"
 
-Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex> vertices, std::vector<uint32_t> indices) 
+	: m_pEffect{ pEffect }
 {
-	SolidEffect* pEffect = new SolidEffect(pDevice, effectFilePath);
-	m_pEffect = pEffect;
-
 	// Create Vertex Buffer
 	D3D11_BUFFER_DESC bufferDesc{};
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -48,16 +46,6 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std:
 
 	result = pDevice->CreateBuffer(&bufferDesc, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
-
-	m_pDiffuse =	dae::Texture::LoadFromFile(pDevice, diffuseMapPath);
-	m_pNormal =		dae::Texture::LoadFromFile(pDevice, normalMapPath);
-	m_pSpecular =	dae::Texture::LoadFromFile(pDevice, specularMapPath);
-	m_pGloss =		dae::Texture::LoadFromFile(pDevice, glossMapPath);
-
-	pEffect->SetDiffuseMap(m_pDiffuse);
-	pEffect->SetNormalMap(m_pNormal);
-	pEffect->SetSpecularMap(m_pSpecular);
-	pEffect->SetGlossinessMap(m_pGloss);
 }
 
 Mesh::~Mesh()
@@ -66,10 +54,6 @@ Mesh::~Mesh()
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 
 	delete m_pEffect;
-	delete m_pDiffuse;
-	delete m_pNormal;
-	delete m_pSpecular;
-	delete m_pGloss;
 }
 
 void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, dae::Vector3& camPos, FilterTechnique technique)

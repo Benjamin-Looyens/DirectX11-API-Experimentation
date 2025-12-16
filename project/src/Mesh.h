@@ -21,8 +21,8 @@ namespace dae {
 class Mesh
 {
 public:
-	// TODO : Texture paths to single struct
-	Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+	// pEffect ownership transfered to Mesh!
+	Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 	~Mesh();
 
 	void Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, dae::Vector3& camPos, FilterTechnique technique = FilterTechnique::POINT); // Really hate that its not const ref

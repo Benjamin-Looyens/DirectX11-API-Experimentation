@@ -14,6 +14,7 @@
 #include "Effect.h"
 #include "Mesh.h"
 #include "Utils.h"
+#include "Texture.h"
 
 using namespace dae;
 
@@ -38,18 +39,37 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	// Camera Initialization
 	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -50.0f });
 
-	// Mesh Initialization
-	std::vector<Vertex> vertices{};
-	std::vector<uint32_t> indices{};
-
-	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
-
+	// Texture Initilization
 	std::wstring effectPath{ L"resources/PosCol3D.fx" };
 	std::string diffusePath{ "resources/vehicle_diffuse.png" };
 	std::string normalPath{ "resources/vehicle_normal.png" };
 	std::string specularPath{ "resources/vehicle_specular.png" };
 	std::string glossPath{ "resources/vehicle_gloss.png" };
-	m_pMesh = new Mesh{ m_pDevice, effectPath, diffusePath, normalPath, specularPath, glossPath, vertices, indices };
+
+	SolidEffect* pEffect = new SolidEffect(m_pDevice, effectPath);
+
+	dae::Texture* pDiffuse =	dae::Texture::LoadFromFile(m_pDevice, diffusePath);
+	dae::Texture* pNormal =		dae::Texture::LoadFromFile(m_pDevice, normalPath);
+	dae::Texture* pSpecular =	dae::Texture::LoadFromFile(m_pDevice, specularPath);
+	dae::Texture* pGloss =		dae::Texture::LoadFromFile(m_pDevice, glossPath);
+
+	pEffect->SetDiffuseMap(pDiffuse);
+	pEffect->SetNormalMap(pNormal);
+	pEffect->SetSpecularMap(pSpecular);
+	pEffect->SetGlossinessMap(pGloss);
+
+	// Mesh Initialization
+	std::vector<Vertex> vertices{};
+	std::vector<uint32_t> indices{};
+
+	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
+	m_pMesh = new Mesh{ m_pDevice, pEffect, vertices, indices };
+
+	// Free Temporary Memory Initializations
+	delete pDiffuse;
+	delete pNormal;
+	delete pSpecular;
+	delete pGloss;
 }
 
 Renderer::~Renderer()
