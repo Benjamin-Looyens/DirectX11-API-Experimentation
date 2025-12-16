@@ -58,20 +58,34 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	m_pVehicleEffect->SetSpecularMap(pSpecular);
 	m_pVehicleEffect->SetGlossinessMap(pGloss);
 
+	// Fire Texture Initilization
+	std::wstring fireEffectPath{ L"resources/Fire.fx" };
+	std::string fireDiffusePath{ "resources/fireFX_diffuse.png" };
+	
+	m_pFireEffect = new AlphaEffect(m_pDevice, fireEffectPath);
+
+	dae::Texture* pDiffuseFire = dae::Texture::LoadFromFile(m_pDevice, fireDiffusePath);
+
+	m_pFireEffect->SetDiffuseMap(pDiffuseFire);
+
 	// Mesh Initialization
 	std::vector<Vertex> vehicleVerts{};
 	std::vector<uint32_t> vehicleIndices{};
 	Utils::ParseOBJ("resources/vehicle.obj", vehicleVerts, vehicleIndices);
 	m_pVehicle = new Mesh(m_pDevice, m_pVehicleEffect, vehicleVerts, vehicleIndices);
 
-	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
-	m_pMesh = new Mesh{ m_pDevice, pEffect, vertices, indices };
+	std::vector<Vertex> fireVerts{};
+	std::vector<uint32_t> fireIndices{};
+	Utils::ParseOBJ("resources/fireFX.obj", fireVerts, fireIndices);
+	m_pFire = new Mesh(m_pDevice, m_pFireEffect, fireVerts, fireIndices); // HACK : Will copy FULL vertex into input layout, even though it only uses POS and UV
 
 	// Free Temporary Memory Initializations
 	delete pDiffuse;
 	delete pNormal;
 	delete pSpecular;
 	delete pGloss;
+
+	delete pDiffuseFire;
 }
 
 Renderer::~Renderer()
@@ -83,6 +97,13 @@ Renderer::~Renderer()
 	if (m_pDepthStencilBuffer) m_pDepthStencilBuffer->Release();
 	if (m_pSwapChain) m_pSwapChain->Release();
 
+#if defined(DEBUG) || defined(_DEBUG)
+	ID3D11Debug* pDebug = nullptr;
+	m_pDevice->QueryInterface(__uuidof(ID3D11Debug), (void**)&pDebug);
+	pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	pDebug->Release();
+#endif
+
 	if (m_pDeviceContext) {
 		m_pDeviceContext->ClearState();
 		m_pDeviceContext->Flush();
@@ -93,6 +114,8 @@ Renderer::~Renderer()
 
 	delete m_pVehicle;
 	delete m_pVehicleEffect;
+	delete m_pFire;
+	delete m_pFireEffect;
 }
 
 void Renderer::Update(const Timer* pTimer)
@@ -116,6 +139,7 @@ void Renderer::Update(const Timer* pTimer)
 	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&m_Camera.origin));
 	m_pVehicleEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 
+	m_pFireEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 }
 
 void Renderer::Render() const
@@ -129,6 +153,9 @@ void Renderer::Render() const
 
 	// Render Solid Meshes
 	if (m_pVehicle) m_pVehicle->Render(m_pDeviceContext, m_CurTechnique);
+
+	// Render Alpha Meshes
+	if (m_pFire) m_pFire->Render(m_pDeviceContext, m_CurTechnique);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);

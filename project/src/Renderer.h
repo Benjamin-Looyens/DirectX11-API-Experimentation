@@ -54,6 +54,10 @@ namespace dae
 		// Meshes
 		Mesh* m_pVehicle{};
 		SolidEffect* m_pVehicleEffect{};
+
+		Mesh* m_pFire{};
+		AlphaEffect* m_pFireEffect{};
+
 		Transform m_WorldTransform{}; // TODO : Store in mesh?
 
 		Camera m_Camera;
