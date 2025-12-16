@@ -25,14 +25,30 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 		m_pPoint = m_pEffect->GetTechniqueByName("PointTechnique");
 		m_pLinear = m_pEffect->GetTechniqueByName("LinearTechnique");
 		m_pAnisotropic = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
+
+		m_pCameraPos = m_pEffect->GetVariableByName("gCameraPos")->AsVector();
+
+		m_pWorldMatrix = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
 		m_pWorldViewProjMatrix = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+
 		m_pDiffuseMap = m_pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
+		m_pNormalMap = m_pEffect->GetVariableByName("gNormal")->AsShaderResource();
+		m_pSpecularMap = m_pEffect->GetVariableByName("gSpecular")->AsShaderResource();
+		m_pGlossMap = m_pEffect->GetVariableByName("gGloss")->AsShaderResource();
 
 		if (!m_pPoint->IsValid()) std::wcout << L"Point Technique not valid!\n";
 		if (!m_pLinear->IsValid()) std::wcout << L"Linear Technique not valid!\n";
 		if (!m_pAnisotropic->IsValid()) std::wcout << L"Anisotropic Technique not valid!\n";
+
+		if (!m_pCameraPos->IsValid()) std::wcout << L"CameraPos not valid!\n";
+		
 		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
+		if (!m_pWorldMatrix->IsValid()) std::wcout << L"World Matrix not valid!\n";
+
 		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
+		if (!m_pNormalMap->IsValid()) std::wcout << L"NormalMap Texture not valid!\n";
+		if (!m_pSpecularMap->IsValid()) std::wcout << L"SpecularMap Texture not valid!\n";
+		if (!m_pGlossMap->IsValid()) std::wcout << L"GlossinessMap Texture not valid!\n";
 	}
 
 	// Initialize Vertex Layout Values
@@ -75,17 +91,41 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 
 Effect::~Effect()
 {
-	if (m_pDiffuseMap) m_pDiffuseMap->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
+
+	if (m_pGlossMap) m_pGlossMap->Release();
+	if (m_pSpecularMap) m_pSpecularMap->Release();
+	if (m_pNormalMap) m_pNormalMap->Release();
+	if (m_pDiffuseMap) m_pDiffuseMap->Release();
+	
+	if (m_pWorldMatrix) m_pWorldMatrix->Release();
+	if (m_pWorldViewProjMatrix) m_pWorldViewProjMatrix->Release();
+
 	if (m_pAnisotropic) m_pPoint->Release();
 	if (m_pLinear) m_pPoint->Release();
 	if (m_pPoint) m_pPoint->Release();
+
 	if (m_pEffect) m_pEffect->Release();
 }
 
 void Effect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
 {
 	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
+}
+
+void Effect::SetNormalMap(dae::Texture* pNormalTexture)
+{
+	if (m_pNormalMap) m_pDiffuseMap->SetResource(pNormalTexture->GetSurfaceView());
+}
+
+void Effect::SetSpecularMap(dae::Texture* pSpecularTexture)
+{
+	if (m_pSpecularMap) m_pDiffuseMap->SetResource(pSpecularTexture->GetSurfaceView());
+}
+
+void Effect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
+{
+	if (m_pGlossMap) m_pDiffuseMap->SetResource(pGlossinessTexture->GetSurfaceView());
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)

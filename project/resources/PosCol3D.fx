@@ -1,6 +1,15 @@
 // Globals
+float gPI = 3.14159265358979323846264338327950288f; // Kinda yuck no?
+float gShininess = 25.0f;
+float gLightIntensity = 7.0f;
+float3 gLightDir = float3(0.577f, -0.577f, 0.576f);
+float3 gCameraPos : CameraPosition;
+float4x4 gWorld : World;
 float4x4 gWorldViewProj : WorldViewProjection;
 Texture2D gDiffuse : DiffuseMap;
+Texture2D gNormal : NormalMap;
+Texture2D gSpecular : SpecularMap;
+Texture2D gGloss : GlossinessMap;
 
 SamplerState gSamPoint
 {
