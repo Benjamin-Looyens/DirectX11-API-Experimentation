@@ -33,6 +33,9 @@ public:
 
 	static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath);
 
+protected:
+	void SetInputLayout(ID3D11InputLayout* pNewLayout);
+
 private:
 	ID3DX11Effect* m_pEffect{};
 	ID3DX11EffectTechnique* m_pPoint{};
@@ -69,4 +72,17 @@ private:
 	ID3DX11EffectShaderResourceVariable* m_pNormalMap{};
 	ID3DX11EffectShaderResourceVariable* m_pSpecularMap{};
 	ID3DX11EffectShaderResourceVariable* m_pGlossMap{};
+};
+
+class AlphaEffect final : public Effect
+{
+public:
+	AlphaEffect(ID3D11Device* pDevice, const std::wstring& filePath);
+	~AlphaEffect() override;
+
+	void SetDiffuseMap(dae::Texture* pDiffuseTexture);
+
+private:
+	// Textures
+	ID3DX11EffectShaderResourceVariable* m_pDiffuseMap{};
 };

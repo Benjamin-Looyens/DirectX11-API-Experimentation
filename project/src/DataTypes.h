@@ -11,8 +11,8 @@
 struct Vertex
 {
 	dae::Vector3 pos{};
-	dae::ColorRGB color{};
 	dae::Vector2 uv{};
+	dae::ColorRGB color{};
 	dae::Vector3 normal{};
 	dae::Vector3 tangent{};
 };

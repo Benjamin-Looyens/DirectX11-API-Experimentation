@@ -35,42 +35,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 		
 		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
 	}
-
-	// Initialize Vertex Layout Values
-	static constexpr uint32_t numElements{ 5 };
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
-
-	vertexDesc[0].SemanticName = "POSITION";
-	vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[0].AlignedByteOffset = 0;
-	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	vertexDesc[1].SemanticName = "COLOR";
-	vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[1].AlignedByteOffset = 12;
-	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	vertexDesc[2].SemanticName = "TEXCOORD";
-	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	vertexDesc[2].AlignedByteOffset = 24;
-	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	vertexDesc[3].SemanticName = "NORMAL";
-	vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[3].AlignedByteOffset = 32;
-	vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	vertexDesc[4].SemanticName = "TANGENT";
-	vertexDesc[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[4].AlignedByteOffset = 44;
-	vertexDesc[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	// Create Input Layout
-	D3DX11_PASS_DESC passDesc{};
-	m_pPoint->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same for each technique, HOWEVER it is strange laying it out based on one of the techniques?
-
-	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
-	if (FAILED(result)) assert(false && "Failed to Create Input Layout!");
 }
 
 Effect::~Effect()
@@ -84,6 +48,12 @@ Effect::~Effect()
 	if (m_pPoint) m_pPoint->Release();
 
 	if (m_pEffect) m_pEffect->Release();
+}
+
+void Effect::SetInputLayout(ID3D11InputLayout* pNewLayout)
+{
+	if (m_pInputLayout) m_pInputLayout->Release();
+	m_pInputLayout = pNewLayout;
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
@@ -131,6 +101,43 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& fil
 #pragma region EffectSolid
 SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : Effect(pDevice, filePath)
 {
+	// Initialize Vertex Layout Values
+	static constexpr uint32_t numElements{ 5 };
+	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
+
+	vertexDesc[0].SemanticName = "POSITION";
+	vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[0].AlignedByteOffset = 0;
+	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[1].SemanticName = "TEXCOORD";
+	vertexDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexDesc[1].AlignedByteOffset = 12;
+	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[2].SemanticName = "COLOR";
+	vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[2].AlignedByteOffset = 20;
+	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[3].SemanticName = "NORMAL";
+	vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[3].AlignedByteOffset = 32;
+	vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[4].SemanticName = "TANGENT";
+	vertexDesc[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[4].AlignedByteOffset = 44;
+	vertexDesc[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	// Create Input Layout
+	D3DX11_PASS_DESC passDesc{};
+	GetPoint()->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same for each technique, HOWEVER it is strange laying it out based on one of the techniques?
+
+	ID3D11InputLayout* pInputLayout{};
+	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &pInputLayout);
+	if (FAILED(result)) assert(false && "Failed to Create Input Layout!");
+	SetInputLayout(pInputLayout);
 
 	ID3DX11Effect* pEffect = GetEffect();
 	if (pEffect) {
@@ -184,3 +191,49 @@ void SolidEffect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
 }
 
 #pragma endregion EffectSolid
+
+#pragma region EffectAlpha
+AlphaEffect::AlphaEffect(ID3D11Device* pDevice, const std::wstring& filePath)
+	: Effect(pDevice, filePath)
+{
+	// Initialize Vertex Layout Values
+	static constexpr uint32_t numElements{ 2 };
+	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
+
+	vertexDesc[0].SemanticName = "POSITION";
+	vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[0].AlignedByteOffset = 0;
+	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[1].SemanticName = "TEXCOORD";
+	vertexDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexDesc[1].AlignedByteOffset = 12;
+	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	// Create Input Layout
+	D3DX11_PASS_DESC passDesc{};
+	GetPoint()->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same for each technique, HOWEVER it is strange laying it out based on one of the techniques?
+
+	ID3D11InputLayout* pInputLayout = GetInputLayout();
+	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &pInputLayout);
+	if (FAILED(result)) assert(false && "Failed to Create Input Layout!");
+	SetInputLayout(pInputLayout);
+
+	ID3DX11Effect* pEffect = this->GetEffect();
+	if (pEffect) {
+		m_pDiffuseMap = pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
+
+		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
+	}
+}
+
+AlphaEffect::~AlphaEffect()
+{
+	if (m_pDiffuseMap) m_pDiffuseMap->Release();
+}
+
+void AlphaEffect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
+{
+	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
+}
+#pragma endregion EffectAlpha

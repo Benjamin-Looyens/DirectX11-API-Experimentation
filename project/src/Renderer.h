@@ -21,6 +21,7 @@
 class Mesh;
 class Effect;
 class SolidEffect;
+class AlphaEffect;
 
 namespace dae
 {
