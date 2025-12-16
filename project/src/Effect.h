@@ -15,11 +15,11 @@ namespace dae {
 	class Texture;
 };
 
-class Effect final
+class Effect
 {
 public:
 	Effect(ID3D11Device* pDevice, const std::wstring& filePath);
-	~Effect();
+	virtual ~Effect();
 
 	ID3DX11Effect* const GetEffect() const { return m_pEffect; }
 	ID3DX11EffectTechnique* const GetPoint() const { return m_pPoint; };
@@ -32,11 +32,6 @@ public:
 
 	ID3DX11EffectMatrixVariable* const GetWorld() const { return m_pWorldMatrix; };
 	ID3DX11EffectMatrixVariable* const GetWorldViewProj() const { return m_pWorldViewProjMatrix; };
-
-	void SetDiffuseMap(dae::Texture* pDiffuseTexture);
-	void SetNormalMap(dae::Texture* pNormalTexture);
-	void SetSpecularMap(dae::Texture* pSpecularTexture);
-	void SetGlossinessMap(dae::Texture* pGlossinessTexture);
 
 	static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath);
 
@@ -54,11 +49,23 @@ private:
 	// Matrices
 	ID3DX11EffectMatrixVariable* m_pWorldMatrix{};
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrix{};
+};
 
+class SolidEffect final : public Effect
+{
+public:
+	SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath);
+	~SolidEffect() override;
+
+	void SetDiffuseMap(dae::Texture* pDiffuseTexture);
+	void SetNormalMap(dae::Texture* pNormalTexture);
+	void SetSpecularMap(dae::Texture* pSpecularTexture);
+	void SetGlossinessMap(dae::Texture* pGlossinessTexture);
+
+private:
 	// Textures
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMap{};
 	ID3DX11EffectShaderResourceVariable* m_pNormalMap{};
 	ID3DX11EffectShaderResourceVariable* m_pSpecularMap{};
 	ID3DX11EffectShaderResourceVariable* m_pGlossMap{};
-
 };

@@ -17,6 +17,7 @@
 #include "Effect.h"
 #include "Texture.h"
 
+#pragma region EffectBase
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 {
 	// Initialize Underlying DX11 Effect
@@ -31,11 +32,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 		m_pWorldMatrix = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
 		m_pWorldViewProjMatrix = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 
-		m_pDiffuseMap = m_pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
-		m_pNormalMap = m_pEffect->GetVariableByName("gNormal")->AsShaderResource();
-		m_pSpecularMap = m_pEffect->GetVariableByName("gSpecular")->AsShaderResource();
-		m_pGlossMap = m_pEffect->GetVariableByName("gGloss")->AsShaderResource();
-
 		if (!m_pPoint->IsValid()) std::wcout << L"Point Technique not valid!\n";
 		if (!m_pLinear->IsValid()) std::wcout << L"Linear Technique not valid!\n";
 		if (!m_pAnisotropic->IsValid()) std::wcout << L"Anisotropic Technique not valid!\n";
@@ -44,11 +40,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 		
 		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
 		if (!m_pWorldMatrix->IsValid()) std::wcout << L"World Matrix not valid!\n";
-
-		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
-		if (!m_pNormalMap->IsValid()) std::wcout << L"NormalMap Texture not valid!\n";
-		if (!m_pSpecularMap->IsValid()) std::wcout << L"SpecularMap Texture not valid!\n";
-		if (!m_pGlossMap->IsValid()) std::wcout << L"GlossinessMap Texture not valid!\n";
 	}
 
 	// Initialize Vertex Layout Values
@@ -91,11 +82,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 Effect::~Effect()
 {
 	if (m_pInputLayout) m_pInputLayout->Release();
-
-	if (m_pGlossMap) m_pGlossMap->Release();
-	if (m_pSpecularMap) m_pSpecularMap->Release();
-	if (m_pNormalMap) m_pNormalMap->Release();
-	if (m_pDiffuseMap) m_pDiffuseMap->Release();
 	
 	if (m_pWorldMatrix) m_pWorldMatrix->Release();
 	if (m_pWorldViewProjMatrix) m_pWorldViewProjMatrix->Release();
@@ -105,26 +91,6 @@ Effect::~Effect()
 	if (m_pPoint) m_pPoint->Release();
 
 	if (m_pEffect) m_pEffect->Release();
-}
-
-void Effect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
-{
-	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
-}
-
-void Effect::SetNormalMap(dae::Texture* pNormalTexture)
-{
-	if (m_pNormalMap) m_pNormalMap->SetResource(pNormalTexture->GetSurfaceView());
-}
-
-void Effect::SetSpecularMap(dae::Texture* pSpecularTexture)
-{
-	if (m_pSpecularMap) m_pSpecularMap->SetResource(pSpecularTexture->GetSurfaceView());
-}
-
-void Effect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
-{
-	if (m_pGlossMap) m_pGlossMap->SetResource(pGlossinessTexture->GetSurfaceView());
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
@@ -167,3 +133,52 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& fil
 
 	return pEffect;
 }
+#pragma endregion EffectBase
+
+#pragma region EffectSolid
+SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : Effect(pDevice, filePath)
+{
+	ID3DX11Effect* pEffect = this->GetEffect();
+
+	if (pEffect) {
+		m_pDiffuseMap = pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
+		m_pNormalMap = pEffect->GetVariableByName("gNormal")->AsShaderResource();
+		m_pSpecularMap = pEffect->GetVariableByName("gSpecular")->AsShaderResource();
+		m_pGlossMap = pEffect->GetVariableByName("gGloss")->AsShaderResource();
+
+		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
+		if (!m_pNormalMap->IsValid()) std::wcout << L"NormalMap Texture not valid!\n";
+		if (!m_pSpecularMap->IsValid()) std::wcout << L"SpecularMap Texture not valid!\n";
+		if (!m_pGlossMap->IsValid()) std::wcout << L"GlossinessMap Texture not valid!\n";
+	}
+}
+
+SolidEffect::~SolidEffect()
+{
+	if (m_pGlossMap) m_pGlossMap->Release();
+	if (m_pSpecularMap) m_pSpecularMap->Release();
+	if (m_pNormalMap) m_pNormalMap->Release();
+	if (m_pDiffuseMap) m_pDiffuseMap->Release();
+}
+
+void SolidEffect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
+{
+	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
+}
+
+void SolidEffect::SetNormalMap(dae::Texture* pNormalTexture)
+{
+	if (m_pNormalMap) m_pNormalMap->SetResource(pNormalTexture->GetSurfaceView());
+}
+
+void SolidEffect::SetSpecularMap(dae::Texture* pSpecularTexture)
+{
+	if (m_pSpecularMap) m_pSpecularMap->SetResource(pSpecularTexture->GetSurfaceView());
+}
+
+void SolidEffect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
+{
+	if (m_pGlossMap) m_pGlossMap->SetResource(pGlossinessTexture->GetSurfaceView());
+}
+
+#pragma endregion EffectSolid

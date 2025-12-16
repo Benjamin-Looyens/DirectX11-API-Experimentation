@@ -102,13 +102,6 @@ float3 SpecularPhong(VS_OUTPUT input, SamplerState sam, float3 normal)
 
 float3 SampleNormal(VS_OUTPUT input, SamplerState sam)
 {
-    //const Vector3 binormal = Vector3::Cross(vert.normal, vert.tangent);
-    //const Matrix tangentSpace = { vert.tangent, binormal, vert.normal, Vector3::Zero };
-    //Vector3 normalMapSample = { meshTexture.pNormal->Sample(vert.uv) };
-    //normalMapSample = 2.0f * normalMapSample - Vector3{ 1.0f, 1.0f, 1.0f };
-    //normalMapSample = tangentSpace.TransformVector(normalMapSample).Normalized();
-
-    //float3 binormal = cross(input.Tangent, input.Normal);
     float3 binormal = cross(input.Normal, input.Tangent);
     float3x3 tangentSpace = float3x3(input.Tangent, binormal, input.Normal);
 

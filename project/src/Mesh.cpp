@@ -16,10 +16,13 @@
 #include "Mesh.h"
 #include "Matrix.h"
 #include "Texture.h"
+#include "Effect.h"
 
 Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices)
-	: m_Effect{ pDevice, effectFilePath }
 {
+	SolidEffect* pEffect = new SolidEffect(pDevice, effectFilePath);
+	m_pEffect = pEffect;
+
 	// Create Vertex Buffer
 	D3D11_BUFFER_DESC bufferDesc{};
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -51,10 +54,10 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std:
 	m_pSpecular =	dae::Texture::LoadFromFile(pDevice, specularMapPath);
 	m_pGloss =		dae::Texture::LoadFromFile(pDevice, glossMapPath);
 
-	m_Effect.SetDiffuseMap(m_pDiffuse);
-	m_Effect.SetNormalMap(m_pNormal);
-	m_Effect.SetSpecularMap(m_pSpecular);
-	m_Effect.SetGlossinessMap(m_pGloss);
+	pEffect->SetDiffuseMap(m_pDiffuse);
+	pEffect->SetNormalMap(m_pNormal);
+	pEffect->SetSpecularMap(m_pSpecular);
+	pEffect->SetGlossinessMap(m_pGloss);
 }
 
 Mesh::~Mesh()
@@ -62,6 +65,7 @@ Mesh::~Mesh()
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 
+	delete m_pEffect;
 	delete m_pDiffuse;
 	delete m_pNormal;
 	delete m_pSpecular;
@@ -74,7 +78,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set Input Layout
-	pDeviceContext->IASetInputLayout(m_Effect.GetInputLayout());
+	pDeviceContext->IASetInputLayout(m_pEffect->GetInputLayout());
 
 	// Set Vertex Buffer
 	constexpr UINT stride = sizeof(Vertex);
@@ -85,9 +89,9 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Update DirectX side variables
-	m_Effect.GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
-	m_Effect.GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
-	m_Effect.GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&camPos));
+	m_pEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
+	m_pEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+	m_pEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&camPos));
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
@@ -96,13 +100,13 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::
 	switch (technique)
 	{
 	case FilterTechnique::POINT:
-		pTechnique = m_Effect.GetPoint();
+		pTechnique = m_pEffect->GetPoint();
 		break;
 	case FilterTechnique::LINEAR:
-		pTechnique = m_Effect.GetLinear();
+		pTechnique = m_pEffect->GetLinear();
 		break;
 	case FilterTechnique::ANISOTROPIC:
-		pTechnique = m_Effect.GetAnisotropic();
+		pTechnique = m_pEffect->GetAnisotropic();
 		break;
 	}
 

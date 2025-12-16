@@ -5,12 +5,13 @@
 #include <vector>
 
 // Project Includes
-#include "Effect.h"
 #include "DataTypes.h"
 
 // Forward Declarations
 struct ID3D11Device;
 struct ID3D11Buffer;
+
+class Effect;
 
 namespace dae {
 	class Texture;
@@ -29,7 +30,7 @@ public:
 private:
 	uint32_t m_NumIndices{};
 
-	Effect m_Effect;
+	Effect* m_pEffect;
 
 	dae::Texture* m_pDiffuse{};
 	dae::Texture* m_pNormal{};
