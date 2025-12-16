@@ -46,7 +46,10 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	std::wstring effectPath{ L"resources/PosCol3D.fx" };
 	std::string diffusePath{ "resources/vehicle_diffuse.png" };
-	m_pMesh = new Mesh{ m_pDevice, effectPath, diffusePath, vertices, indices };
+	std::string normalPath{ "resources/vehicle_normal.png" };
+	std::string specularPath{ "resources/vehicle_specular.png" };
+	std::string glossPath{ "resources/vehicle_gloss.png" };
+	m_pMesh = new Mesh{ m_pDevice, effectPath, diffusePath, normalPath, specularPath, glossPath, vertices, indices };
 }
 
 Renderer::~Renderer()

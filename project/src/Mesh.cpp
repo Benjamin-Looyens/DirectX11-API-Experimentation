@@ -17,7 +17,7 @@
 #include "Matrix.h"
 #include "Texture.h"
 
-Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices)
+Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices)
 	: m_Effect{ pDevice, effectFilePath }
 {
 	// Create Vertex Buffer
@@ -46,8 +46,15 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std:
 	result = pDevice->CreateBuffer(&bufferDesc, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
 
-	m_pTexture = dae::Texture::LoadFromFile(pDevice, diffuseMapPath);
-	m_Effect.SetDiffuseMap(m_pTexture);
+	m_pDiffuse =	dae::Texture::LoadFromFile(pDevice, diffuseMapPath);
+	m_pNormal =		dae::Texture::LoadFromFile(pDevice, normalMapPath);
+	m_pSpecular =	dae::Texture::LoadFromFile(pDevice, specularMapPath);
+	m_pGloss =		dae::Texture::LoadFromFile(pDevice, glossMapPath);
+
+	m_Effect.SetDiffuseMap(m_pDiffuse);
+	m_Effect.SetNormalMap(m_pNormal);
+	m_Effect.SetSpecularMap(m_pSpecular);
+	m_Effect.SetGlossinessMap(m_pGloss);
 }
 
 Mesh::~Mesh()
@@ -55,7 +62,10 @@ Mesh::~Mesh()
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 
-	delete m_pTexture;
+	delete m_pDiffuse;
+	delete m_pNormal;
+	delete m_pSpecular;
+	delete m_pGloss;
 }
 
 void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, FilterTechnique technique)

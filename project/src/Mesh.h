@@ -20,7 +20,8 @@ namespace dae {
 class Mesh
 {
 public:
-	Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+	// TODO : Texture paths to single struct
+	Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, const std::string& normalMapPath, const std::string& specularMapPath, const std::string& glossMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 	~Mesh();
 
 	void Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, FilterTechnique technique = FilterTechnique::POINT); // Really hate that its not const ref
@@ -30,7 +31,10 @@ private:
 
 	Effect m_Effect;
 
-	dae::Texture* m_pTexture{};
+	dae::Texture* m_pDiffuse{};
+	dae::Texture* m_pNormal{};
+	dae::Texture* m_pSpecular{};
+	dae::Texture* m_pGloss{};
 
 	ID3D11Buffer* m_pVertexBuffer{};
 	ID3D11Buffer* m_pIndexBuffer{};
