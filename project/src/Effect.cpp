@@ -86,7 +86,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 
 	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
 	if (FAILED(result)) assert(false && "Failed to Create Input Layout!");
-
 }
 
 Effect::~Effect()
@@ -115,17 +114,17 @@ void Effect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
 
 void Effect::SetNormalMap(dae::Texture* pNormalTexture)
 {
-	if (m_pNormalMap) m_pDiffuseMap->SetResource(pNormalTexture->GetSurfaceView());
+	if (m_pNormalMap) m_pNormalMap->SetResource(pNormalTexture->GetSurfaceView());
 }
 
 void Effect::SetSpecularMap(dae::Texture* pSpecularTexture)
 {
-	if (m_pSpecularMap) m_pDiffuseMap->SetResource(pSpecularTexture->GetSurfaceView());
+	if (m_pSpecularMap) m_pSpecularMap->SetResource(pSpecularTexture->GetSurfaceView());
 }
 
 void Effect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
 {
-	if (m_pGlossMap) m_pDiffuseMap->SetResource(pGlossinessTexture->GetSurfaceView());
+	if (m_pGlossMap) m_pGlossMap->SetResource(pGlossinessTexture->GetSurfaceView());
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
