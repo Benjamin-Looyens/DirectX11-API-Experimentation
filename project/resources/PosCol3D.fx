@@ -50,7 +50,8 @@ struct VS_OUTPUT
     float2 UV : TEXCOORD;
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
-    float3 ViewDir : VIEW_DIRECTION; 
+    float3 ViewDir : VIEW_DIRECTION;
+    //float3 World : WORLD;
 };
 
 // Vertex Shader
@@ -69,6 +70,7 @@ VS_OUTPUT VS(VS_INPUT input)
     output.Tangent = normalize(mul(input.Tangent, (float3x3)gWorld));
 
     output.ViewDir = normalize(mul(float4(input.Position, 1.0f), gWorld).xyz - gCameraPos); // Calculate view direction for current vertex, interpolate later
+    //output.World = mul(float4(input.Position, 1.0f), gWorld).xyz;
 
     return output;
 };
@@ -76,25 +78,45 @@ VS_OUTPUT VS(VS_INPUT input)
 // Shading Functions
 float ObservedArea(VS_OUTPUT input)
 {
-    //const float observedArea = std::max(0.0f, Vector3::Dot(normal, lightDir));
     return saturate(dot(input.Normal, -gLightDir));
 };
 
 float3 LambertDiffuse(VS_OUTPUT input, SamplerState sam)
 {
-    //const ColorRGB diffuse = vertMode == VertexRenderMode::COLORS ? vert.color : meshTexture.pDiffuse->Sample(vert.uv);
-    //const ColorRGB lambert = ((LIGHT_INTENSITY / PI) * diffuse);
-
     float3 diffuse = gDiffuse.Sample(sam, input.UV);
     
     return mul((gLightIntensity / gPI), diffuse);
 };
 
+float3 SpecularPhong(VS_OUTPUT input, SamplerState sam)
+{
+    //const float ks = meshTexture.pSpecular->Sample(vert.uv).r;
+    //const float exp = meshTexture.pGloss->Sample(vert.uv).r;
+    //
+    //const Vector3 reflect = lightDir - (2.0f * (Vector3::Dot(lightDir, normal) * normal));
+    //const float cosAngle = std::max(Vector3::Dot(reflect.Normalized(), vert.viewDir), 0.0f);
+    //const float specular = ks * std::powf(cosAngle, exp * SHININESS);
+
+    float ks = gSpecular.Sample(sam, input.UV).x;
+    float exp = gGloss.Sample(sam, input.UV).x;
+    
+    //float3 viewDir = normalize(input.World - gCameraPos);
+    float3 lightReflect = reflect(-gLightDir, input.Normal);
+    float cosAngle = saturate(dot(normalize(lightReflect), input.ViewDir));
+
+    return mul(ks, pow(cosAngle, mul(exp, gShininess)));
+};
+
 // Pixel Shaders
 float4 UniformPixelShader(VS_OUTPUT input, SamplerState sam)
 {
-    return float4(mul(ObservedArea(input), LambertDiffuse(input, gSamPoint)), 1.0f);
-    //return float4(ObservedArea(input), ObservedArea(input), ObservedArea(input), ObservedArea(input));
+    float observedArea = ObservedArea(input);
+    float3 lambert = LambertDiffuse(input, sam); 
+    float3 phong = SpecularPhong(input, sam);
+
+    //return float4(mul(ObservedArea(input), LambertDiffuse(input, gSamPoint)), 1.0f); // Lambert
+    //return float4(phong, 1.0f); // Specular
+    return float4(((lambert + phong) * observedArea), 1.0f); // Combined
 }
 
 float4 PS_Point(VS_OUTPUT input) : SV_TARGET
