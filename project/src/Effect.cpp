@@ -27,19 +27,13 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 		m_pLinear = m_pEffect->GetTechniqueByName("LinearTechnique");
 		m_pAnisotropic = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
 
-		m_pCameraPos = m_pEffect->GetVariableByName("gCameraPos")->AsVector();
-
-		m_pWorldMatrix = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
 		m_pWorldViewProjMatrix = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 
 		if (!m_pPoint->IsValid()) std::wcout << L"Point Technique not valid!\n";
 		if (!m_pLinear->IsValid()) std::wcout << L"Linear Technique not valid!\n";
 		if (!m_pAnisotropic->IsValid()) std::wcout << L"Anisotropic Technique not valid!\n";
-
-		if (!m_pCameraPos->IsValid()) std::wcout << L"CameraPos not valid!\n";
 		
 		if (!m_pWorldViewProjMatrix->IsValid()) std::wcout << L"WorldViewProjection Matrix not valid!\n";
-		if (!m_pWorldMatrix->IsValid()) std::wcout << L"World Matrix not valid!\n";
 	}
 
 	// Initialize Vertex Layout Values
@@ -83,7 +77,6 @@ Effect::~Effect()
 {
 	if (m_pInputLayout) m_pInputLayout->Release();
 	
-	if (m_pWorldMatrix) m_pWorldMatrix->Release();
 	if (m_pWorldViewProjMatrix) m_pWorldViewProjMatrix->Release();
 
 	if (m_pAnisotropic) m_pPoint->Release();
@@ -138,23 +131,32 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& fil
 #pragma region EffectSolid
 SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : Effect(pDevice, filePath)
 {
-	ID3DX11Effect* pEffect = this->GetEffect();
 
+	ID3DX11Effect* pEffect = GetEffect();
 	if (pEffect) {
 		m_pDiffuseMap = pEffect->GetVariableByName("gDiffuse")->AsShaderResource();
 		m_pNormalMap = pEffect->GetVariableByName("gNormal")->AsShaderResource();
 		m_pSpecularMap = pEffect->GetVariableByName("gSpecular")->AsShaderResource();
 		m_pGlossMap = pEffect->GetVariableByName("gGloss")->AsShaderResource();
 
+		m_pCameraPos = pEffect->GetVariableByName("gCameraPos")->AsVector();
+		m_pWorldMatrix = pEffect->GetVariableByName("gWorld")->AsMatrix();
+
 		if (!m_pDiffuseMap->IsValid()) std::wcout << L"DiffuseMap Texture not valid!\n";
 		if (!m_pNormalMap->IsValid()) std::wcout << L"NormalMap Texture not valid!\n";
 		if (!m_pSpecularMap->IsValid()) std::wcout << L"SpecularMap Texture not valid!\n";
 		if (!m_pGlossMap->IsValid()) std::wcout << L"GlossinessMap Texture not valid!\n";
+
+		if (!m_pCameraPos->IsValid()) std::wcout << L"CameraPos not valid!\n";
+		if (!m_pWorldMatrix->IsValid()) std::wcout << L"World Matrix not valid!\n";
 	}
 }
 
 SolidEffect::~SolidEffect()
 {
+	if (m_pWorldMatrix) m_pWorldMatrix->Release();
+	if (m_pCameraPos) m_pCameraPos->Release();
+
 	if (m_pGlossMap) m_pGlossMap->Release();
 	if (m_pSpecularMap) m_pSpecularMap->Release();
 	if (m_pNormalMap) m_pNormalMap->Release();

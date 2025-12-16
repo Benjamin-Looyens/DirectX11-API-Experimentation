@@ -15,6 +15,7 @@ namespace dae {
 	class Texture;
 };
 
+// TODO : Rule Of 5?
 class Effect
 {
 public:
@@ -28,9 +29,6 @@ public:
 
 	ID3D11InputLayout* const GetInputLayout() const { return m_pInputLayout; };
 
-	ID3DX11EffectVectorVariable* const GetCameraPos() const { return m_pCameraPos; };
-
-	ID3DX11EffectMatrixVariable* const GetWorld() const { return m_pWorldMatrix; };
 	ID3DX11EffectMatrixVariable* const GetWorldViewProj() const { return m_pWorldViewProjMatrix; };
 
 	static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath);
@@ -43,11 +41,7 @@ private:
 
 	ID3D11InputLayout* m_pInputLayout{};
 	
-	// Vectors
-	ID3DX11EffectVectorVariable* m_pCameraPos{};
-
 	// Matrices
-	ID3DX11EffectMatrixVariable* m_pWorldMatrix{};
 	ID3DX11EffectMatrixVariable* m_pWorldViewProjMatrix{};
 };
 
@@ -62,7 +56,14 @@ public:
 	void SetSpecularMap(dae::Texture* pSpecularTexture);
 	void SetGlossinessMap(dae::Texture* pGlossinessTexture);
 
+	ID3DX11EffectVectorVariable* const GetCameraPos() const { return m_pCameraPos; };
+	ID3DX11EffectMatrixVariable* const GetWorld() const { return m_pWorldMatrix; };
+
 private:
+	// Variables
+	ID3DX11EffectVectorVariable* m_pCameraPos{};
+	ID3DX11EffectMatrixVariable* m_pWorldMatrix{};
+
 	// Textures
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMap{};
 	ID3DX11EffectShaderResourceVariable* m_pNormalMap{};

@@ -106,7 +106,6 @@ void Renderer::Update(const Timer* pTimer)
 		m_RotCounter += std::fmod(pTimer->GetElapsed(), PI_2);
 		m_WorldTransform.SetRotationY(m_RotCounter);
 	}
-}
 
 	// Calculate Current Context Variables
 	Matrix world = m_WorldTransform.GetFull(); // HACK : Maybe I could calculate this in the update function, and then store it to be used here?
@@ -116,6 +115,8 @@ void Renderer::Update(const Timer* pTimer)
 	m_pVehicleEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
 	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&m_Camera.origin));
 	m_pVehicleEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+
+}
 
 void Renderer::Render() const
 {
