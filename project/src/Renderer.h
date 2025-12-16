@@ -19,6 +19,8 @@
 
 // Forward Declarations
 class Mesh;
+class Effect;
+class SolidEffect;
 
 namespace dae
 {
@@ -34,7 +36,7 @@ namespace dae
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
 		void Update(const Timer* pTimer);
-		void Render(); // HACK : Isn't const due to world transform needing to be calculated
+		void Render() const; 
 
 		void CycleFiltering();
 
@@ -48,8 +50,10 @@ namespace dae
 
 		bool m_IsInitialized{ false };
 
-		Mesh* m_pMesh{};
-		Transform m_WorldTransform{}; // TODO : Store in mesh
+		// Meshes
+		Mesh* m_pVehicle{};
+		SolidEffect* m_pVehicleEffect{};
+		Transform m_WorldTransform{}; // TODO : Store in mesh?
 
 		Camera m_Camera;
 

@@ -39,28 +39,30 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	// Camera Initialization
 	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -50.0f });
 
-	// Texture Initilization
-	std::wstring effectPath{ L"resources/PosCol3D.fx" };
-	std::string diffusePath{ "resources/vehicle_diffuse.png" };
-	std::string normalPath{ "resources/vehicle_normal.png" };
-	std::string specularPath{ "resources/vehicle_specular.png" };
-	std::string glossPath{ "resources/vehicle_gloss.png" };
+	// Vehicle Texture Initilization
+	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
+	std::string vehicleDiffusePath{ "resources/vehicle_diffuse.png" };
+	std::string vehicleNormalPath{ "resources/vehicle_normal.png" };
+	std::string vehicleSpecularPath{ "resources/vehicle_specular.png" };
+	std::string vehicleGlossPath{ "resources/vehicle_gloss.png" };
 
-	SolidEffect* pEffect = new SolidEffect(m_pDevice, effectPath);
+	m_pVehicleEffect = new SolidEffect(m_pDevice, vehicleEffectPath);
 
-	dae::Texture* pDiffuse =	dae::Texture::LoadFromFile(m_pDevice, diffusePath);
-	dae::Texture* pNormal =		dae::Texture::LoadFromFile(m_pDevice, normalPath);
-	dae::Texture* pSpecular =	dae::Texture::LoadFromFile(m_pDevice, specularPath);
-	dae::Texture* pGloss =		dae::Texture::LoadFromFile(m_pDevice, glossPath);
+	dae::Texture* pDiffuse =	dae::Texture::LoadFromFile(m_pDevice, vehicleDiffusePath);
+	dae::Texture* pNormal =		dae::Texture::LoadFromFile(m_pDevice, vehicleNormalPath);
+	dae::Texture* pSpecular =	dae::Texture::LoadFromFile(m_pDevice, vehicleSpecularPath);
+	dae::Texture* pGloss =		dae::Texture::LoadFromFile(m_pDevice, vehicleGlossPath);
 
-	pEffect->SetDiffuseMap(pDiffuse);
-	pEffect->SetNormalMap(pNormal);
-	pEffect->SetSpecularMap(pSpecular);
-	pEffect->SetGlossinessMap(pGloss);
+	m_pVehicleEffect->SetDiffuseMap(pDiffuse);
+	m_pVehicleEffect->SetNormalMap(pNormal);
+	m_pVehicleEffect->SetSpecularMap(pSpecular);
+	m_pVehicleEffect->SetGlossinessMap(pGloss);
 
 	// Mesh Initialization
-	std::vector<Vertex> vertices{};
-	std::vector<uint32_t> indices{};
+	std::vector<Vertex> vehicleVerts{};
+	std::vector<uint32_t> vehicleIndices{};
+	Utils::ParseOBJ("resources/vehicle.obj", vehicleVerts, vehicleIndices);
+	m_pVehicle = new Mesh(m_pDevice, m_pVehicleEffect, vehicleVerts, vehicleIndices);
 
 	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
 	m_pMesh = new Mesh{ m_pDevice, pEffect, vertices, indices };
@@ -89,7 +91,8 @@ Renderer::~Renderer()
 
 	if (m_pDevice) m_pDevice->Release();
 
-	delete m_pMesh;
+	delete m_pVehicle;
+	delete m_pVehicleEffect;
 }
 
 void Renderer::Update(const Timer* pTimer)
@@ -105,22 +108,26 @@ void Renderer::Update(const Timer* pTimer)
 	}
 }
 
-
-void Renderer::Render()
-{
-	if (!m_IsInitialized) return;
-
 	// Calculate Current Context Variables
 	Matrix world = m_WorldTransform.GetFull(); // HACK : Maybe I could calculate this in the update function, and then store it to be used here?
-	Matrix worldViewProj = world * m_Camera.viewMatrix* m_Camera.projectMatrix; // Cant be const due to function later
+	Matrix worldViewProj = world * m_Camera.viewMatrix * m_Camera.projectMatrix; // Cant be const due to function later
+
+	// Update DirectX Side
+	m_pVehicleEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
+	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&m_Camera.origin));
+	m_pVehicleEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+
+void Renderer::Render() const
+{
+	if (!m_IsInitialized) return;
 
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Render Logic
-	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, world, worldViewProj, m_Camera.origin, m_CurTechnique);
+	// Render Solid Meshes
+	if (m_pVehicle) m_pVehicle->Render(m_pDeviceContext, m_CurTechnique);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);

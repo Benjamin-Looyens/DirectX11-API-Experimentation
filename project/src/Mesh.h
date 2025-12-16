@@ -21,11 +21,12 @@ namespace dae {
 class Mesh
 {
 public:
-	// pEffect ownership transfered to Mesh!
 	Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 	~Mesh();
 
-	void Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, dae::Vector3& camPos, FilterTechnique technique = FilterTechnique::POINT); // Really hate that its not const ref
+	void Render(ID3D11DeviceContext* pDeviceContext, FilterTechnique technique = FilterTechnique::POINT) const; // Really hate that its not const ref
+
+	Effect* GetEffect() { return m_pEffect; }
 
 private:
 	uint32_t m_NumIndices{};

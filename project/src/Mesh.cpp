@@ -52,11 +52,9 @@ Mesh::~Mesh()
 {
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
-
-	delete m_pEffect;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, dae::Vector3& camPos, FilterTechnique technique)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, FilterTechnique technique) const
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -71,11 +69,6 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::
 
 	// Set Index Buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-	// Update DirectX side variables
-	m_pEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
-	m_pEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
-	m_pEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&camPos));
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
