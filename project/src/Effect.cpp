@@ -36,7 +36,7 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 	}
 
 	// Initialize Vertex Layout Values
-	static constexpr uint32_t numElements{ 3 };
+	static constexpr uint32_t numElements{ 5 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -54,9 +54,19 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 	vertexDesc[2].AlignedByteOffset = 24;
 	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
+	vertexDesc[3].SemanticName = "NORMAL";
+	vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[3].AlignedByteOffset = 32;
+	vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+	vertexDesc[4].SemanticName = "TANGENT";
+	vertexDesc[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[4].AlignedByteOffset = 44;
+	vertexDesc[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
 	// Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
-	m_pPoint->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same, HOWEVER it is strange laying it out based on one of the techniques?
+	m_pPoint->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same for each technique, HOWEVER it is strange laying it out based on one of the techniques?
 
 	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &m_pInputLayout);
 	if (FAILED(result)) assert(false && "Failed to Create Input Layout!");

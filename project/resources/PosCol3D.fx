@@ -29,6 +29,8 @@ struct VS_INPUT
     float3 Position : POSITION;
     float3 Color : COLOR;
     float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
 };
 
 // Output
@@ -37,6 +39,9 @@ struct VS_OUTPUT
     float4 Position : SV_POSITION;
     float3 Color : COLOR;
     float2 UV : TEXCOORD;
+    float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
+    float3 ViewDir : VIEW_DIRECTION; 
 };
 
 // Vertex Shader
@@ -48,7 +53,14 @@ VS_OUTPUT VS(VS_INPUT input)
     output.Position = mul(output.Position, gWorldViewProj);
 
     output.Color = input.Color;
+    
     output.UV = input.UV;
+    
+    output.Normal = normalize(mul(input.Normal, (float3x3)gWorld));
+    output.Tangent = normalize(mul(input.Tangent, (float3x3)gWorld));
+
+    output.ViewDir = normalize(mul(float4(input.Position, 1.0f), gWorld).xyz - gCameraPos); // Calculate view direction for current vertex, interpolate later
+
     return output;
 };
 

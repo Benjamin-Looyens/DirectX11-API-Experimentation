@@ -1,9 +1,8 @@
 #pragma once
 #include <fstream>
+#include <vector>
 #include "Math.h"
 #include "DataTypes.h"
-
-#define OBJ_NO_NORMALS
 
 namespace dae
 {
