@@ -73,18 +73,41 @@ VS_OUTPUT VS(VS_INPUT input)
     return output;
 };
 
+// Shading Functions
+float ObservedArea(VS_OUTPUT input)
+{
+    //const float observedArea = std::max(0.0f, Vector3::Dot(normal, lightDir));
+    return saturate(dot(input.Normal, -gLightDir));
+};
+
+float3 LambertDiffuse(VS_OUTPUT input, SamplerState sam)
+{
+    //const ColorRGB diffuse = vertMode == VertexRenderMode::COLORS ? vert.color : meshTexture.pDiffuse->Sample(vert.uv);
+    //const ColorRGB lambert = ((LIGHT_INTENSITY / PI) * diffuse);
+
+    float3 diffuse = gDiffuse.Sample(sam, input.UV);
+    
+    return mul((gLightIntensity / gPI), diffuse);
+};
+
 // Pixel Shaders
+float4 UniformPixelShader(VS_OUTPUT input, SamplerState sam)
+{
+    return float4(mul(ObservedArea(input), LambertDiffuse(input, gSamPoint)), 1.0f);
+    //return float4(ObservedArea(input), ObservedArea(input), ObservedArea(input), ObservedArea(input));
+}
+
 float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
-    return gDiffuse.Sample(gSamPoint, input.UV);
+    return UniformPixelShader(input, gSamPoint);
 };
 float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
 {
-    return gDiffuse.Sample(gSamLinear, input.UV);
+    return UniformPixelShader(input, gSamLinear);
 };
 float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
 {
-    return gDiffuse.Sample(gSamAnisotropic, input.UV);
+    return UniformPixelShader(input, gSamAnisotropic);
 };
 
 // Techniques

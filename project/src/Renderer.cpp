@@ -88,7 +88,8 @@ void Renderer::Render()
 	if (!m_IsInitialized) return;
 
 	// Calculate Current Context Variables
-	Matrix worldViewProj = m_WorldTransform.GetFull() * m_Camera.viewMatrix* m_Camera.projectMatrix; // Cant be const due to function later
+	Matrix world = m_WorldTransform.GetFull(); // HACK : Maybe I could calculate this in the update function, and then store it to be used here?
+	Matrix worldViewProj = world * m_Camera.viewMatrix* m_Camera.projectMatrix; // Cant be const due to function later
 
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
@@ -96,7 +97,7 @@ void Renderer::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Render Logic
-	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, worldViewProj, m_CurTechnique);
+	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, world, worldViewProj, m_CurTechnique);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);

@@ -58,7 +58,7 @@ Mesh::~Mesh()
 	delete m_pTexture;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProj, FilterTechnique technique)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& world, dae::Matrix& worldViewProj, FilterTechnique technique)
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -75,6 +75,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewPro
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Set WorldViewProjection Matrix
+	m_Effect.GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
 	m_Effect.GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 
 	// Draw
