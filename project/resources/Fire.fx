@@ -64,6 +64,7 @@ SamplerState gSamAnisotropic
     AddressU = Wrap;
     AddressV = Wrap;
 };
+SamplerState gCurSam : CurrentSampler;
 
 // Input
 struct VS_INPUT
@@ -93,27 +94,13 @@ VS_OUTPUT VS(VS_INPUT input)
 };
 
 // Pixel Shaders
-float4 UniformPixelShader(VS_OUTPUT input, SamplerState sam)
+float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    return gDiffuse.Sample(sam, input.UV); // TODO : Implement alpha channel
-};
-float4 PS_Point(VS_OUTPUT input) : SV_TARGET
-{
-    return UniformPixelShader(input, gSamPoint);
-};
-float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
-{
-    return UniformPixelShader(input, gSamLinear);
-};
-float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
-{
-    return UniformPixelShader(input, gSamAnisotropic);
+    return gDiffuse.Sample(gCurSam, input.UV);
 };
 
 // Techniques
-// TODO : Figure out if I can have a singular technique that somehow references the current PixelShader
-
-technique11 PointTechnique
+technique11 DefaultTechnique
 {
     pass P0
     {
@@ -122,33 +109,6 @@ technique11 PointTechnique
         SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
-
-        SetPixelShader( CompileShader( ps_5_0, PS_Point() ) ); // Only this line is different for each technique...
-    }
-};
-technique11 LinearTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterState);
-        SetDepthStencilState(gDepthStencState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-
-        SetPixelShader( CompileShader( ps_5_0, PS_Linear() ) );
-    }
-};
-technique11 AnisotropicTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterState);
-        SetDepthStencilState(gDepthStencState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-
-        SetPixelShader( CompileShader( ps_5_0, PS_Anisotropic() ) );
+        SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 };

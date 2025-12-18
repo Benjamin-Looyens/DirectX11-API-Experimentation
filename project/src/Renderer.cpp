@@ -152,10 +152,10 @@ void Renderer::Render() const
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Render Solid Meshes
-	if (m_pVehicle) m_pVehicle->Render(m_pDeviceContext, m_CurTechnique);
+	if (m_pVehicle) m_pVehicle->Render(m_pDeviceContext);
 
 	// Render Alpha Meshes
-	if (m_pFire) m_pFire->Render(m_pDeviceContext, m_CurTechnique);
+	if (m_pFire) m_pFire->Render(m_pDeviceContext);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
@@ -163,23 +163,24 @@ void Renderer::Render() const
 
 void dae::Renderer::CycleFiltering()
 {
-	// Yuck
-	m_CurTechnique = static_cast<FilterTechnique>((static_cast<uint8_t>(m_CurTechnique) + 1) % static_cast<uint8_t>(FilterTechnique::TECHNIQUE_COUNT));
+	m_CurSamTech = static_cast<SampleTechnique>((static_cast<uint8_t>(m_CurSamTech) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
 
-	// Yuck part 2
 	std::cout << "Filtering Technique = ";
-	switch (m_CurTechnique)
+	switch (m_CurSamTech)
 	{
-	case FilterTechnique::POINT:
+	case SampleTechnique::POINT:
 		std::cout << "POINT\n";
 		break;
-	case FilterTechnique::LINEAR:
+	case SampleTechnique::LINEAR:
 		std::cout << "LINEAR\n";
 		break;
-	case FilterTechnique::ANISOTROPIC:
+	case SampleTechnique::ANISOTROPIC:
 		std::cout << "ANISOTROPIC\n";
 		break;
 	}
+
+	m_pVehicleEffect->SetSampleState(m_CurSamTech);
+	m_pFireEffect->SetSampleState(m_CurSamTech);
 }
 
 void dae::Renderer::ToggleRotation()

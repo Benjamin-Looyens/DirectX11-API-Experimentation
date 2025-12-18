@@ -54,7 +54,7 @@ Mesh::~Mesh()
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, FilterTechnique technique) const
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -72,21 +72,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, FilterTechnique technique
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
-	ID3DX11EffectTechnique* pTechnique{};
-
-	switch (technique)
-	{
-	case FilterTechnique::POINT:
-		pTechnique = m_pEffect->GetPoint();
-		break;
-	case FilterTechnique::LINEAR:
-		pTechnique = m_pEffect->GetLinear();
-		break;
-	case FilterTechnique::ANISOTROPIC:
-		pTechnique = m_pEffect->GetAnisotropic();
-		break;
-	}
-
+	ID3DX11EffectTechnique* pTechnique = m_pEffect->GetTechnique();
 	pTechnique->GetDesc(&techDesc);
 	for (UINT index{ }; index < techDesc.Passes; ++index) {
 		pTechnique->GetPassByIndex(index)->Apply(0, pDeviceContext);

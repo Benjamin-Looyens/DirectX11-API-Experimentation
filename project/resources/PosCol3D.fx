@@ -48,6 +48,7 @@ SamplerState gSamAnisotropic
     AddressU = Wrap;
     AddressV = Wrap;
 };
+SamplerState gCurSam : CurrentSampler;
 
 // Input
 struct VS_INPUT
@@ -97,16 +98,16 @@ float ObservedArea(VS_OUTPUT input, float3 normal)
 {
     return saturate(dot(normal, -gLightDir));
 };
-float3 LambertDiffuse(VS_OUTPUT input, SamplerState sam)
+float3 LambertDiffuse(VS_OUTPUT input)
 {
-    float3 diffuse = gDiffuse.Sample(sam, input.UV);
+    float3 diffuse = gDiffuse.Sample(gCurSam, input.UV);
     
     return mul((gLightIntensity / gPI), diffuse);
 };
-float3 SpecularPhong(VS_OUTPUT input, SamplerState sam, float3 normal)
+float3 SpecularPhong(VS_OUTPUT input, float3 normal)
 {
-    float ks = gSpecular.Sample(sam, input.UV).x;
-    float exp = gGloss.Sample(sam, input.UV).x;
+    float ks = gSpecular.Sample(gCurSam, input.UV).x;
+    float exp = gGloss.Sample(gCurSam, input.UV).x;
     
     //float3 viewDir = normalize(input.World - gCameraPos);
     float3 lightReflect = reflect(-gLightDir, normal);
@@ -114,12 +115,12 @@ float3 SpecularPhong(VS_OUTPUT input, SamplerState sam, float3 normal)
 
     return mul(ks, pow(cosAngle, mul(exp, gShininess)));
 };
-float3 SampleNormal(VS_OUTPUT input, SamplerState sam)
+float3 SampleNormal(VS_OUTPUT input)
 {
     float3 binormal = cross(input.Normal, input.Tangent);
     float3x3 tangentSpace = float3x3(input.Tangent, binormal, input.Normal);
 
-    float3 normalMapSample = gNormal.Sample(sam, input.UV);
+    float3 normalMapSample = gNormal.Sample(gCurSam, input.UV);
     normalMapSample = mul(2.0f, normalMapSample) - float3(1.0f, 1.0f, 1.0f);
     normalMapSample = mul(normalize(normalMapSample), tangentSpace);
 
@@ -128,33 +129,19 @@ float3 SampleNormal(VS_OUTPUT input, SamplerState sam)
 }
 
 // Pixel Shaders
-float4 UniformPixelShader(VS_OUTPUT input, SamplerState sam)
+float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    float3 normal = SampleNormal(input, sam);
-
+    float3 normal = SampleNormal(input);
     float observedArea = ObservedArea(input, normal);
-    float3 lambert = LambertDiffuse(input, sam); 
-    float3 phong = SpecularPhong(input, sam, normal);
+    float3 lambert = LambertDiffuse(input); 
+    float3 phong = SpecularPhong(input, normal);
 
     //return float4(mul(ObservedArea(input), LambertDiffuse(input, gSamPoint)), 1.0f); // Lambert
     //return float4(phong, 1.0f); // Specular
     return float4(((lambert + phong) * observedArea), 1.0f); // Combined
 };
-float4 PS_Point(VS_OUTPUT input) : SV_TARGET
-{
-    return UniformPixelShader(input, gSamPoint);
-};
-float4 PS_Linear(VS_OUTPUT input) : SV_TARGET
-{
-    return UniformPixelShader(input, gSamLinear);
-};
-float4 PS_Anisotropic(VS_OUTPUT input) : SV_TARGET
-{
-    return UniformPixelShader(input, gSamAnisotropic);
-};
-
 // Techniques
-technique11 PointTechnique
+technique11 DefaultTechnique
 {
     pass P0
     {
@@ -163,30 +150,6 @@ technique11 PointTechnique
         SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Point() ) );
-    }
-};
-technique11 LinearTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterState);
-        SetDepthStencilState(gDepthStencState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Linear() ) );
-    }
-};
-technique11 AnisotropicTechnique
-{
-    pass P0
-    {
-        SetRasterizerState(gRasterState);
-        SetDepthStencilState(gDepthStencState, 0);
-        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-        SetVertexShader( CompileShader( vs_5_0, VS() ) );
-        SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, PS_Anisotropic() ) );
+        SetPixelShader( CompileShader( ps_5_0, PS() ) );
     }
 };

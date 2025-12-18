@@ -24,7 +24,7 @@ public:
 	Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
 	~Mesh();
 
-	void Render(ID3D11DeviceContext* pDeviceContext, FilterTechnique technique = FilterTechnique::POINT) const; // Really hate that its not const ref
+	void Render(ID3D11DeviceContext* pDeviceContext) const; // Really hate that its not const ref
 
 	Effect* GetEffect() { return m_pEffect; }
 

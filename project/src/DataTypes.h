@@ -18,7 +18,7 @@ struct Vertex
 };
 
 // Enums
-enum class FilterTechnique
+enum class SampleTechnique
 {
 	POINT,
 	LINEAR,

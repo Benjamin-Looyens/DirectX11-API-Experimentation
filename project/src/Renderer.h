@@ -62,7 +62,7 @@ namespace dae
 
 		Camera m_Camera;
 
-		FilterTechnique m_CurTechnique{ FilterTechnique::POINT };
+		SampleTechnique m_CurSamTech{ SampleTechnique::POINT };
 
 		float m_RotCounter{};
 
