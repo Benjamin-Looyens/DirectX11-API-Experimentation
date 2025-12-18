@@ -11,20 +11,37 @@ Texture2D gNormal : NormalMap;
 Texture2D gSpecular : SpecularMap;
 Texture2D gGloss : GlossinessMap;
 
+RasterizerState gRasterState
+{
+    CullMode = back; // TODO : access and change this for keybinds on C++ side
+    FrontCounterClockwise = false;
+};
+
+DepthStencilState gDepthStencState
+{
+    DepthEnable = true;
+    DepthWriteMask = true;
+    DepthFunc = less;
+    StencilEnable = true;
+};
+
+BlendState gBlendState
+{
+    BlendEnable[0] = false;
+};
+
 SamplerState gSamPoint
 {
     Filter = MIN_MAG_MIP_POINT; 
     AddressU = Wrap;
     AddressV = Wrap;
 };
-
 SamplerState gSamLinear
 {
     Filter = MIN_MAG_MIP_LINEAR; 
     AddressU = Wrap;
     AddressV = Wrap;
 };
-
 SamplerState gSamAnisotropic
 {
     Filter = ANISOTROPIC; // Is this correct?
@@ -80,14 +97,12 @@ float ObservedArea(VS_OUTPUT input, float3 normal)
 {
     return saturate(dot(normal, -gLightDir));
 };
-
 float3 LambertDiffuse(VS_OUTPUT input, SamplerState sam)
 {
     float3 diffuse = gDiffuse.Sample(sam, input.UV);
     
     return mul((gLightIntensity / gPI), diffuse);
 };
-
 float3 SpecularPhong(VS_OUTPUT input, SamplerState sam, float3 normal)
 {
     float ks = gSpecular.Sample(sam, input.UV).x;
@@ -99,7 +114,6 @@ float3 SpecularPhong(VS_OUTPUT input, SamplerState sam, float3 normal)
 
     return mul(ks, pow(cosAngle, mul(exp, gShininess)));
 };
-
 float3 SampleNormal(VS_OUTPUT input, SamplerState sam)
 {
     float3 binormal = cross(input.Normal, input.Tangent);
@@ -125,8 +139,7 @@ float4 UniformPixelShader(VS_OUTPUT input, SamplerState sam)
     //return float4(mul(ObservedArea(input), LambertDiffuse(input, gSamPoint)), 1.0f); // Lambert
     //return float4(phong, 1.0f); // Specular
     return float4(((lambert + phong) * observedArea), 1.0f); // Combined
-}
-
+};
 float4 PS_Point(VS_OUTPUT input) : SV_TARGET
 {
     return UniformPixelShader(input, gSamPoint);
@@ -145,6 +158,9 @@ technique11 PointTechnique
 {
     pass P0
     {
+        SetRasterizerState(gRasterState);
+        SetDepthStencilState(gDepthStencState, 0);
+        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_5_0, PS_Point() ) );
@@ -154,6 +170,9 @@ technique11 LinearTechnique
 {
     pass P0
     {
+        SetRasterizerState(gRasterState);
+        SetDepthStencilState(gDepthStencState, 0);
+        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_5_0, PS_Linear() ) );
@@ -163,6 +182,9 @@ technique11 AnisotropicTechnique
 {
     pass P0
     {
+        SetRasterizerState(gRasterState);
+        SetDepthStencilState(gDepthStencState, 0);
+        SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
         SetGeometryShader( NULL );
         SetPixelShader( CompileShader( ps_5_0, PS_Anisotropic() ) );
