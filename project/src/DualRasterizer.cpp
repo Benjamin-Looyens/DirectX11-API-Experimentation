@@ -148,18 +148,18 @@ void dae::DualRasterizer::CycleCullMode()
 
 void dae::DualRasterizer::CycleFilterTechnique()
 {
-	m_Settings.texSamplingTechnique = static_cast<FilterTechnique>((static_cast<uint8_t>(m_Settings.texSamplingTechnique) + 1) % static_cast<uint8_t>(FilterTechnique::TECHNIQUE_COUNT));
+	m_Settings.texSamplingTechnique = static_cast<SampleTechnique>((static_cast<uint8_t>(m_Settings.texSamplingTechnique) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
 
 	std::cout << "[DIRECT X] Filtering Technique = ";
 	switch (m_Settings.texSamplingTechnique)
 	{
-	case FilterTechnique::POINT:
+	case SampleTechnique::POINT:
 		std::cout << "POINT\n";
 		break;
-	case FilterTechnique::LINEAR:
+	case SampleTechnique::LINEAR:
 		std::cout << "LINEAR\n";
 		break;
-	case FilterTechnique::ANISOTROPIC:
+	case SampleTechnique::ANISOTROPIC:
 		std::cout << "ANISOTROPIC\n";
 		break;
 	}

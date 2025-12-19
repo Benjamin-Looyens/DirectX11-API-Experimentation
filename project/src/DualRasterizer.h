@@ -64,7 +64,7 @@ namespace dae {
 
 			// Hardware
 			bool doFireRender{ true };
-			FilterTechnique texSamplingTechnique{ FilterTechnique::POINT };
+			SampleTechnique texSamplingTechnique{ SampleTechnique::POINT };
 
 			// Software
 			LightingMode lightingMode{ LightingMode::COMBINED };

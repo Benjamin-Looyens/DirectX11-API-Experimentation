@@ -18,7 +18,7 @@ struct Vertex
 };
 
 // Enums
-enum class SampleTechnique
+enum class SampleTechnique : uint8_t
 {
 	POINT,
 	LINEAR,
