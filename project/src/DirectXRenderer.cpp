@@ -15,6 +15,7 @@
 #include "Mesh.h"
 #include "Utils.h"
 #include "Texture.h"
+#include "Camera.h"
 
 using namespace dae;
 
@@ -22,7 +23,7 @@ DXRenderer::DXRenderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow)
 {
 	//Initialize
-	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
+	SDL_GetWindowSize(pWindow, &m_Width, &m_Height); // TODO : Prob do this only in the DualRasterizer
 
 	//Initialize DirectX pipeline
 	const HRESULT result = InitializeDirectX();
@@ -35,9 +36,6 @@ DXRenderer::DXRenderer(SDL_Window* pWindow) :
 	{
 		std::cout << "DirectX initialization failed with error [" << result << "]!\n";
 	}
-
-	// Camera Initialization
-	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -50.0f });
 
 	// Vehicle Texture Initilization
 	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
@@ -118,12 +116,9 @@ DXRenderer::~DXRenderer()
 	delete m_pFireEffect;
 }
 
-void DXRenderer::Update(const Timer* pTimer)
+void DXRenderer::Update(const Timer* pTimer, Camera& cam)
 {
 	if (!m_IsInitialized) return;
-
-	// Update Members
-	m_Camera.Update(pTimer);
 
 	if (m_DoRotation) {
 		m_RotCounter += std::fmod(pTimer->GetElapsed(), PI_2);
@@ -132,11 +127,11 @@ void DXRenderer::Update(const Timer* pTimer)
 
 	// Calculate Current Context Variables
 	Matrix world = m_WorldTransform.GetFull(); // HACK : Maybe I could calculate this in the update function, and then store it to be used here?
-	Matrix worldViewProj = world * m_Camera.viewMatrix * m_Camera.projectMatrix; // Cant be const due to function later
+	Matrix worldViewProj = world * cam.viewMatrix * cam.projectMatrix; // Cant be const due to function later
 
 	// Update DirectX Side
 	m_pVehicleEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
-	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&m_Camera.origin));
+	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&cam.origin));
 	m_pVehicleEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 
 	m_pFireEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));

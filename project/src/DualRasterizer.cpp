@@ -12,6 +12,14 @@
 dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 {
 	m_pDirectX = new DXRenderer(pWindow);
+
+	int width, height;
+
+	//Initialize
+	SDL_GetWindowSize(pWindow, &width, &height);
+
+	// Camera Initialization
+	m_Camera.Initialize(width, height, 45.0f, { 0.0f, 0.0f, -50.0f });
 }
 
 dae::DualRasterizer::~DualRasterizer()
@@ -22,7 +30,9 @@ dae::DualRasterizer::~DualRasterizer()
 
 void dae::DualRasterizer::Update(const Timer* pTimer)
 {
-	m_pDirectX->Update(pTimer);
+	m_Camera.Update(pTimer);
+
+	m_pDirectX->Update(pTimer, m_Camera);
 }
 
 void dae::DualRasterizer::Render() const

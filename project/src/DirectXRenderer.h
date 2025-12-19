@@ -14,7 +14,6 @@
 
 // Framework Headers
 #include "Timer.h"
-#include "Camera.h"
 #include "DataTypes.h"
 
 // Forward Declarations
@@ -22,6 +21,10 @@ class Mesh;
 class Effect;
 class SolidEffect;
 class AlphaEffect;
+
+namespace dae {
+	struct Camera;
+}
 
 namespace dae
 {
@@ -36,7 +39,7 @@ namespace dae
 		DXRenderer& operator=(const DXRenderer&) = delete;
 		DXRenderer& operator=(DXRenderer&&) noexcept = delete;
 
-		void Update(const Timer* pTimer);
+		void Update(const Timer* pTimer, dae::Camera& cam);
 		void Render() const; 
 
 		void CycleFiltering();
@@ -59,8 +62,6 @@ namespace dae
 		AlphaEffect* m_pFireEffect{};
 
 		Transform m_WorldTransform{}; // TODO : Store in mesh?
-
-		Camera m_Camera;
 
 		SampleTechnique m_CurSamTech{ SampleTechnique::POINT };
 
