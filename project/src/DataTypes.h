@@ -11,18 +11,14 @@
 struct Vertex
 {
 	dae::Vector3 pos{};
-	dae::ColorRGB color{};
 	dae::Vector2 uv{};
-};
-
-struct Vertex_Out
-{
-	dae::Vector4 pos{};
 	dae::ColorRGB color{};
+	dae::Vector3 normal{};
+	dae::Vector3 tangent{};
 };
 
 // Enums
-enum class FilterTechnique : uint8_t
+enum class SampleTechnique
 {
 	POINT,
 	LINEAR,

@@ -14,6 +14,7 @@
 #include "Effect.h"
 #include "Mesh.h"
 #include "Utils.h"
+#include "Texture.h"
 
 using namespace dae;
 
@@ -38,15 +39,53 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	// Camera Initialization
 	m_Camera.Initialize(m_Width, m_Height, 45.0f, { 0.0f, 0.0f, -50.0f });
 
+	// Vehicle Texture Initilization
+	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
+	std::string vehicleDiffusePath{ "resources/vehicle_diffuse.png" };
+	std::string vehicleNormalPath{ "resources/vehicle_normal.png" };
+	std::string vehicleSpecularPath{ "resources/vehicle_specular.png" };
+	std::string vehicleGlossPath{ "resources/vehicle_gloss.png" };
+
+	m_pVehicleEffect = new SolidEffect(m_pDevice, vehicleEffectPath);
+
+	dae::Texture* pDiffuse =	dae::Texture::LoadFromFile(m_pDevice, vehicleDiffusePath);
+	dae::Texture* pNormal =		dae::Texture::LoadFromFile(m_pDevice, vehicleNormalPath);
+	dae::Texture* pSpecular =	dae::Texture::LoadFromFile(m_pDevice, vehicleSpecularPath);
+	dae::Texture* pGloss =		dae::Texture::LoadFromFile(m_pDevice, vehicleGlossPath);
+
+	m_pVehicleEffect->SetDiffuseMap(pDiffuse);
+	m_pVehicleEffect->SetNormalMap(pNormal);
+	m_pVehicleEffect->SetSpecularMap(pSpecular);
+	m_pVehicleEffect->SetGlossinessMap(pGloss);
+
+	// Fire Texture Initilization
+	std::wstring fireEffectPath{ L"resources/Fire.fx" };
+	std::string fireDiffusePath{ "resources/fireFX_diffuse.png" };
+	
+	m_pFireEffect = new AlphaEffect(m_pDevice, fireEffectPath);
+
+	dae::Texture* pDiffuseFire = dae::Texture::LoadFromFile(m_pDevice, fireDiffusePath);
+
+	m_pFireEffect->SetDiffuseMap(pDiffuseFire);
+
 	// Mesh Initialization
-	std::vector<Vertex> vertices{};
-	std::vector<uint32_t> indices{};
+	std::vector<Vertex> vehicleVerts{};
+	std::vector<uint32_t> vehicleIndices{};
+	Utils::ParseOBJ("resources/vehicle.obj", vehicleVerts, vehicleIndices);
+	m_pVehicle = new Mesh(m_pDevice, m_pVehicleEffect, vehicleVerts, vehicleIndices);
 
-	Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
+	std::vector<Vertex> fireVerts{};
+	std::vector<uint32_t> fireIndices{};
+	Utils::ParseOBJ("resources/fireFX.obj", fireVerts, fireIndices);
+	m_pFire = new Mesh(m_pDevice, m_pFireEffect, fireVerts, fireIndices); // HACK : Will copy FULL vertex into input layout, even though it only uses POS and UV
 
-	std::wstring effectPath{ L"resources/PosCol3D.fx" };
-	std::string diffusePath{ "resources/vehicle_diffuse.png" };
-	m_pMesh = new Mesh{ m_pDevice, effectPath, diffusePath, vertices, indices };
+	// Free Temporary Memory Initializations
+	delete pDiffuse;
+	delete pNormal;
+	delete pSpecular;
+	delete pGloss;
+
+	delete pDiffuseFire;
 }
 
 Renderer::~Renderer()
@@ -58,6 +97,13 @@ Renderer::~Renderer()
 	if (m_pDepthStencilBuffer) m_pDepthStencilBuffer->Release();
 	if (m_pSwapChain) m_pSwapChain->Release();
 
+#if defined(DEBUG) || defined(_DEBUG)
+	ID3D11Debug* pDebug = nullptr;
+	m_pDevice->QueryInterface(__uuidof(ID3D11Debug), (void**)&pDebug);
+	pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	pDebug->Release();
+#endif
+
 	if (m_pDeviceContext) {
 		m_pDeviceContext->ClearState();
 		m_pDeviceContext->Flush();
@@ -66,7 +112,10 @@ Renderer::~Renderer()
 
 	if (m_pDevice) m_pDevice->Release();
 
-	delete m_pMesh;
+	delete m_pVehicle;
+	delete m_pVehicleEffect;
+	delete m_pFire;
+	delete m_pFireEffect;
 }
 
 void Renderer::Update(const Timer* pTimer)
@@ -80,23 +129,33 @@ void Renderer::Update(const Timer* pTimer)
 		m_RotCounter += std::fmod(pTimer->GetElapsed(), PI_2);
 		m_WorldTransform.SetRotationY(m_RotCounter);
 	}
-}
-
-
-void Renderer::Render()
-{
-	if (!m_IsInitialized) return;
 
 	// Calculate Current Context Variables
-	Matrix worldViewProj = m_WorldTransform.GetFull() * m_Camera.viewMatrix* m_Camera.projectMatrix; // Cant be const due to function later
+	Matrix world = m_WorldTransform.GetFull(); // HACK : Maybe I could calculate this in the update function, and then store it to be used here?
+	Matrix worldViewProj = world * m_Camera.viewMatrix * m_Camera.projectMatrix; // Cant be const due to function later
+
+	// Update DirectX Side
+	m_pVehicleEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
+	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&m_Camera.origin));
+	m_pVehicleEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+
+	m_pFireEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+}
+
+void Renderer::Render() const
+{
+	if (!m_IsInitialized) return;
 
 	// Clear Views
 	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// Render Logic
-	if (m_pMesh) m_pMesh->Render(m_pDeviceContext, worldViewProj, m_CurTechnique);
+	// Render Solid Meshes
+	if (m_pVehicle) m_pVehicle->Render(m_pDeviceContext);
+
+	// Render Alpha Meshes
+	if (m_pFire) m_pFire->Render(m_pDeviceContext);
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
@@ -104,23 +163,24 @@ void Renderer::Render()
 
 void dae::Renderer::CycleFiltering()
 {
-	// Yuck
-	m_CurTechnique = static_cast<FilterTechnique>((static_cast<uint8_t>(m_CurTechnique) + 1) % static_cast<uint8_t>(FilterTechnique::TECHNIQUE_COUNT));
+	m_CurSamTech = static_cast<SampleTechnique>((static_cast<uint8_t>(m_CurSamTech) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
 
-	// Yuck part 2
 	std::cout << "Filtering Technique = ";
-	switch (m_CurTechnique)
+	switch (m_CurSamTech)
 	{
-	case FilterTechnique::POINT:
+	case SampleTechnique::POINT:
 		std::cout << "POINT\n";
 		break;
-	case FilterTechnique::LINEAR:
+	case SampleTechnique::LINEAR:
 		std::cout << "LINEAR\n";
 		break;
-	case FilterTechnique::ANISOTROPIC:
+	case SampleTechnique::ANISOTROPIC:
 		std::cout << "ANISOTROPIC\n";
 		break;
 	}
+
+	m_pVehicleEffect->SetSampleState(m_CurSamTech);
+	m_pFireEffect->SetSampleState(m_CurSamTech);
 }
 
 void dae::Renderer::ToggleRotation()

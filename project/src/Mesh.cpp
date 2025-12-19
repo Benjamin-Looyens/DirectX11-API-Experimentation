@@ -16,9 +16,10 @@
 #include "Mesh.h"
 #include "Matrix.h"
 #include "Texture.h"
+#include "Effect.h"
 
-Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std::string& diffuseMapPath, std::vector<Vertex> vertices, std::vector<uint32_t> indices)
-	: m_Effect{ pDevice, effectFilePath }
+Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex> vertices, std::vector<uint32_t> indices) 
+	: m_pEffect{ pEffect }
 {
 	// Create Vertex Buffer
 	D3D11_BUFFER_DESC bufferDesc{};
@@ -45,26 +46,21 @@ Mesh::Mesh(ID3D11Device* pDevice, const std::wstring& effectFilePath, const std:
 
 	result = pDevice->CreateBuffer(&bufferDesc, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
-
-	m_pTexture = dae::Texture::LoadFromFile(pDevice, diffuseMapPath);
-	m_Effect.SetDiffuseMap(m_pTexture);
 }
 
 Mesh::~Mesh()
 {
 	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
-
-	delete m_pTexture;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewProj, FilterTechnique technique)
+void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set Input Layout
-	pDeviceContext->IASetInputLayout(m_Effect.GetInputLayout());
+	pDeviceContext->IASetInputLayout(m_pEffect->GetInputLayout());
 
 	// Set Vertex Buffer
 	constexpr UINT stride = sizeof(Vertex);
@@ -74,26 +70,9 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext, dae::Matrix& worldViewPro
 	// Set Index Buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	// Set WorldViewProjection Matrix
-	m_Effect.GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
-
 	// Draw
 	D3DX11_TECHNIQUE_DESC techDesc{};
-	ID3DX11EffectTechnique* pTechnique{};
-
-	switch (technique)
-	{
-	case FilterTechnique::POINT:
-		pTechnique = m_Effect.GetPoint();
-		break;
-	case FilterTechnique::LINEAR:
-		pTechnique = m_Effect.GetLinear();
-		break;
-	case FilterTechnique::ANISOTROPIC:
-		pTechnique = m_Effect.GetAnisotropic();
-		break;
-	}
-
+	ID3DX11EffectTechnique* pTechnique = m_pEffect->GetTechnique();
 	pTechnique->GetDesc(&techDesc);
 	for (UINT index{ }; index < techDesc.Passes; ++index) {
 		pTechnique->GetPassByIndex(index)->Apply(0, pDeviceContext);
