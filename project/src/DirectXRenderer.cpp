@@ -9,7 +9,7 @@
 #include <iostream>
 
 //Project includes
-#include "Renderer.h"
+#include "DirectXRenderer.h"
 #include "DataTypes.h"
 #include "Effect.h"
 #include "Mesh.h"
@@ -18,7 +18,7 @@
 
 using namespace dae;
 
-Renderer::Renderer(SDL_Window* pWindow) :
+DXRenderer::DXRenderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow)
 {
 	//Initialize
@@ -48,10 +48,10 @@ Renderer::Renderer(SDL_Window* pWindow) :
 
 	m_pVehicleEffect = new SolidEffect(m_pDevice, vehicleEffectPath);
 
-	dae::Texture* pDiffuse =	dae::Texture::LoadFromFile(m_pDevice, vehicleDiffusePath);
-	dae::Texture* pNormal =		dae::Texture::LoadFromFile(m_pDevice, vehicleNormalPath);
-	dae::Texture* pSpecular =	dae::Texture::LoadFromFile(m_pDevice, vehicleSpecularPath);
-	dae::Texture* pGloss =		dae::Texture::LoadFromFile(m_pDevice, vehicleGlossPath);
+	dae::Texture* pDiffuse = dae::Texture::LoadFromFile(m_pDevice, vehicleDiffusePath);
+	dae::Texture* pNormal = dae::Texture::LoadFromFile(m_pDevice, vehicleNormalPath);
+	dae::Texture* pSpecular = dae::Texture::LoadFromFile(m_pDevice, vehicleSpecularPath);
+	dae::Texture* pGloss = dae::Texture::LoadFromFile(m_pDevice, vehicleGlossPath);
 
 	m_pVehicleEffect->SetDiffuseMap(pDiffuse);
 	m_pVehicleEffect->SetNormalMap(pNormal);
@@ -61,7 +61,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	// Fire Texture Initilization
 	std::wstring fireEffectPath{ L"resources/Fire.fx" };
 	std::string fireDiffusePath{ "resources/fireFX_diffuse.png" };
-	
+
 	m_pFireEffect = new AlphaEffect(m_pDevice, fireEffectPath);
 
 	dae::Texture* pDiffuseFire = dae::Texture::LoadFromFile(m_pDevice, fireDiffusePath);
@@ -88,7 +88,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	delete pDiffuseFire;
 }
 
-Renderer::~Renderer()
+DXRenderer::~DXRenderer()
 {
 	// Release in reverse order
 	if (m_pRenderTargetView) m_pRenderTargetView->Release();
@@ -118,7 +118,7 @@ Renderer::~Renderer()
 	delete m_pFireEffect;
 }
 
-void Renderer::Update(const Timer* pTimer)
+void DXRenderer::Update(const Timer* pTimer)
 {
 	if (!m_IsInitialized) return;
 
@@ -142,7 +142,7 @@ void Renderer::Update(const Timer* pTimer)
 	m_pFireEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 }
 
-void Renderer::Render() const
+void DXRenderer::Render() const
 {
 	if (!m_IsInitialized) return;
 
@@ -161,7 +161,7 @@ void Renderer::Render() const
 	m_pSwapChain->Present(0, 0);
 }
 
-void dae::Renderer::CycleFiltering()
+void dae::DXRenderer::CycleFiltering()
 {
 	m_CurSamTech = static_cast<SampleTechnique>((static_cast<uint8_t>(m_CurSamTech) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
 
@@ -183,7 +183,7 @@ void dae::Renderer::CycleFiltering()
 	m_pFireEffect->SetSampleState(m_CurSamTech);
 }
 
-void dae::Renderer::ToggleRotation()
+void dae::DXRenderer::ToggleRotation()
 {
 	m_DoRotation = !m_DoRotation;
 
@@ -199,7 +199,7 @@ void dae::Renderer::ToggleRotation()
 	}
 }
 
-HRESULT Renderer::InitializeDirectX()
+HRESULT DXRenderer::InitializeDirectX()
 {
 	// NOTE : In theory I could make some stuff here constexpr (but shouldn't matter much)
 

@@ -25,16 +25,16 @@ class AlphaEffect;
 
 namespace dae
 {
-	class Renderer final
+	class DXRenderer final
 	{
 	public:
-		Renderer(SDL_Window* pWindow);
-		~Renderer();
+		DXRenderer(SDL_Window* pWindow);
+		~DXRenderer();
 
-		Renderer(const Renderer&) = delete;
-		Renderer(Renderer&&) noexcept = delete;
-		Renderer& operator=(const Renderer&) = delete;
-		Renderer& operator=(Renderer&&) noexcept = delete;
+		DXRenderer(const DXRenderer&) = delete;
+		DXRenderer(DXRenderer&&) noexcept = delete;
+		DXRenderer& operator=(const DXRenderer&) = delete;
+		DXRenderer& operator=(DXRenderer&&) noexcept = delete;
 
 		void Update(const Timer* pTimer);
 		void Render() const; 

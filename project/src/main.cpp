@@ -10,7 +10,7 @@
 
 //Project includes
 #include "Timer.h"
-#include "Renderer.h"
+#include "DualRasterizer.h"
 #if defined(_DEBUG)
 	#include "LeakDetector.h"
 #endif
@@ -51,12 +51,14 @@ int main(int argc, char* args[])
 
 	//Initialize "framework"
 	const auto pTimer = new Timer();
-	const auto pRenderer = new Renderer(pWindow);
+	//const auto pRenderer = new Renderer(pWindow);
+	const auto pRenderer = new DualRasterizer(pWindow);
 
 	//Start loop
 	pTimer->Start();
 	float printTimer = 0.f;
 	bool isLooping = true;
+	bool doFps = false;
 	while (isLooping)
 	{
 		//--------- Get input events ---------
@@ -69,24 +71,31 @@ int main(int argc, char* args[])
 				isLooping = false;
 				break;
 			case SDL_KEYUP:
-				if (e.key.keysym.scancode == SDL_SCANCODE_F2)
-					pRenderer->CycleFiltering();
-				if (e.key.keysym.scancode == SDL_SCANCODE_F5)
+				if (e.key.keysym.scancode == SDL_SCANCODE_F1) // (Shared) Toggle between DirectX& Software Rasterizer(‘F1’)
+					pRenderer->CycleRenderer();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F2) // (Shared) Toggle Rotation(On / Off) (‘F2’)
 					pRenderer->ToggleRotation();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F3) // (Hardware Only) Toggle FireFX mesh(On / Off) (‘F3’)
+					pRenderer->ToggleFireMesh();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F4) // (Hardware Only) Toggle between Texture Sampling States(point - linear - anisotropic) (‘F4’)
+					pRenderer->CycleSampleTechnique();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F5) // (Software Only) Cycle Shading Mode(Combined / ObservedArea / Diffuse / Specular) (‘F5’)
+					pRenderer->CycleLightingMode();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F6) // (Software Only) Toggle NormalMap(On / Off) (‘F6’)
+					pRenderer->ToggleNormalMap();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F7) // (Software Only) Toggle DepthBuffer Visualization(On / Off) (‘F7’)
+					pRenderer->ToggleDepthRender();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F8) // (Software Only) Toggle BoundingBox Visualization(On / Off) (‘F8’)
+					pRenderer->ToggleBoundsRender();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F9) // (Shared) Cycle Cull Modes(back - face, front - face, none) (‘F9’)
+					pRenderer->CycleCullMode();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F10) // (Shared) Toggle Uniform Clear Color(On / Off) (‘F10’)
+					pRenderer->ToggleUniformClear();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F11) { // (Shared) Toggle Print FPS(On / Off) (‘F11’)
+					doFps = !doFps;
+					std::cout << "[SHARED] FPS = ENABLED\n";
+				}
 
-				// (Shared) Toggle between DirectX& Software Rasterizer(‘F1’)
-				// (Shared) Toggle Rotation(On / Off) (‘F2’)
-				// (Shared) Toggle Uniform Clear Color(On / Off) (‘F10’)
-				// (Shared) Toggle Print FPS(On / Off) (‘F11’)
-				// (Shared) Cycle Cull Modes(back - face, front - face, none) (‘F9’)
-				// 
-				// (Hardware Only) Toggle FireFX mesh(On / Off) (‘F3’)
-				// (Hardware Only) Toggle between Texture Sampling States(point - linear - anisotropic) (‘F4’)
-				// 
-				// (Software Only) Cycle Shading Mode(Combined / ObservedArea / Diffuse / Specular) (‘F5’)
-				// (Software Only) Toggle NormalMap(On / Off) (‘F6’)
-				// (Software Only) Toggle DepthBuffer Visualization(On / Off) (‘F7’)
-				// (Software Only) Toggle BoundingBox Visualization(On / Off) (‘F8’)
 				break;
 			default: ;
 			}

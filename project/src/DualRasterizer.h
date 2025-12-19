@@ -16,14 +16,13 @@
 #include "Timer.h"
 #include "Camera.h"
 #include "DataTypes.h"
+#include "Mesh.h"
 
 // Forward Declarations
-class Mesh;
-
 
 namespace dae {
-	class RendererSoftware;
-	class RendererDirectX;
+	class SoftwareRenderer;
+	class DXRenderer;
 	class Timer;
 
 	class DualRasterizer final
@@ -52,8 +51,9 @@ namespace dae {
 
 		// Cycles
 		void CycleCullMode();
-		void CycleFilterTechnique();
+		void CycleSampleTechnique();
 		void CycleLightingMode();
+		void CycleRenderer();
 
 		struct RenderSettings
 		{
@@ -75,8 +75,8 @@ namespace dae {
 
 	private:
 		// Renderers
-		RendererDirectX* m_pDirectX{};
-		RendererSoftware* m_pSoftware{};
+		DXRenderer* m_pDirectX{};
+		SoftwareRenderer* m_pSoftware{};
 
 		// Common Members
 		Camera m_Camera;

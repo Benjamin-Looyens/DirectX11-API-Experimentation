@@ -3,7 +3,7 @@ set(SOURCES
     "src/main.cpp"
     "src/LeakDetector.cpp"
     "src/Matrix.cpp"
-    "src/Renderer.cpp"
+    "src/DirectXRenderer.cpp"
     "src/Timer.cpp"
 	"src/Vector2.cpp"
     "src/Vector3.cpp"

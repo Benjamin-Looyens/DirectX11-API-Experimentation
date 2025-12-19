@@ -1,6 +1,7 @@
 // Project Includes
 #include "DualRasterizer.h"
 #include "Mesh.h"
+#include "DirectXRenderer.h"
 
 // External Includes
 
@@ -10,17 +11,18 @@
 
 dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 {
-
+	m_pDirectX = new DXRenderer(pWindow);
 }
 
 dae::DualRasterizer::~DualRasterizer()
 {
-
+	delete m_pDirectX;
+	delete m_pSoftware;
 }
 
 void dae::DualRasterizer::Update(const Timer* pTimer)
 {
-
+	m_pDirectX->Update(pTimer);
 }
 
 void dae::DualRasterizer::Render() const
@@ -28,6 +30,8 @@ void dae::DualRasterizer::Render() const
 	// TODO : Implement DirectX & Software as classes
 	//if (m_UseSoftware) m_pSoftware->Render(m_Settings, m_Camera, m_Meshes);
 	//else m_pDirectX->Render(m_Settings, m_Camera, m_Meshes);
+
+	m_pDirectX->Render();
 }
 
 void dae::DualRasterizer::ToggleRotation()
@@ -44,6 +48,9 @@ void dae::DualRasterizer::ToggleRotation()
 		std::cout << "OFF\n";
 		break;
 	}
+
+	// HACK : Temporarily calling directly
+	m_pDirectX->ToggleRotation();
 }
 
 void dae::DualRasterizer::ToggleUniformClear()
@@ -146,7 +153,7 @@ void dae::DualRasterizer::CycleCullMode()
 	}
 }
 
-void dae::DualRasterizer::CycleFilterTechnique()
+void dae::DualRasterizer::CycleSampleTechnique()
 {
 	m_Settings.texSamplingTechnique = static_cast<SampleTechnique>((static_cast<uint8_t>(m_Settings.texSamplingTechnique) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
 
@@ -163,6 +170,9 @@ void dae::DualRasterizer::CycleFilterTechnique()
 		std::cout << "ANISOTROPIC\n";
 		break;
 	}
+
+	// HACK : Temporarily calling directly
+	m_pDirectX->CycleFiltering();
 }
 
 void dae::DualRasterizer::CycleLightingMode()
@@ -185,4 +195,9 @@ void dae::DualRasterizer::CycleLightingMode()
 		std::cout << "COMBINED\n";
 		break;
 	}
+}
+
+void dae::DualRasterizer::CycleRenderer()
+{
+	// TODO : Variable control over which renderer to use (hardware vs software)
 }
