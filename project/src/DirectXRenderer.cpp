@@ -165,20 +165,6 @@ void dae::DXRenderer::CycleFiltering()
 {
 	m_CurSamTech = static_cast<SampleTechnique>((static_cast<uint8_t>(m_CurSamTech) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
 
-	std::cout << "Filtering Technique = ";
-	switch (m_CurSamTech)
-	{
-	case SampleTechnique::POINT:
-		std::cout << "POINT\n";
-		break;
-	case SampleTechnique::LINEAR:
-		std::cout << "LINEAR\n";
-		break;
-	case SampleTechnique::ANISOTROPIC:
-		std::cout << "ANISOTROPIC\n";
-		break;
-	}
-
 	m_pVehicleEffect->SetSampleState(m_CurSamTech);
 	m_pFireEffect->SetSampleState(m_CurSamTech);
 }
@@ -186,17 +172,6 @@ void dae::DXRenderer::CycleFiltering()
 void dae::DXRenderer::ToggleRotation()
 {
 	m_DoRotation = !m_DoRotation;
-
-	std::cout << "Mesh Rotation = ";
-	switch (m_DoRotation)
-	{
-	case true:
-		std::cout << "ON\n";
-		break;
-	case false:
-		std::cout << "OFF\n";
-		break;
-	}
 }
 
 HRESULT DXRenderer::InitializeDirectX()

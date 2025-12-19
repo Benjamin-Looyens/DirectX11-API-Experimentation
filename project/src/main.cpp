@@ -23,6 +23,28 @@ void ShutDown(SDL_Window* pWindow)
 	SDL_Quit();
 }
 
+void PrintInputs()
+{
+	std::cout <<
+		"**************** INPUTS ****************\n" <<
+		"**************** SHARED ****************\n" <<
+		"H   - Print Input Mappings\n" <<
+		"F1  - Switch Between DirectX & Software\n" <<
+		"F2  - Toggle Mesh Rotation\n" <<
+		"F9  - Cycle Between Cull Modes\n" <<
+		"F10 - Toggle Uniform Background Clear\n" <<
+		"F11 - Toggle Printing FPS\n" <<
+		"*************** HARDWARE ***************\n" <<
+		"F3  - Toggle Fire Mesh Rendering\n" <<
+		"F4  - Cycle Sampling Method\n" <<
+		"*************** SOFTWARE ***************\n" <<
+		"F5  - Cycle Shading Modes\n" <<
+		"F6  - Toggle Normal Map Sampling\n" <<
+		"F7  - Toggle Depth Buffer Rendering\n" <<
+		"F8  - Toggle Bounding Box Rendering\n" <<
+		"****************************************\n";
+}
+
 int main(int argc, char* args[])
 {
 	//Unreferenced parameters
@@ -59,6 +81,9 @@ int main(int argc, char* args[])
 	float printTimer = 0.f;
 	bool isLooping = true;
 	bool doFps = false;
+
+	PrintInputs();
+
 	while (isLooping)
 	{
 		//--------- Get input events ---------
@@ -71,6 +96,8 @@ int main(int argc, char* args[])
 				isLooping = false;
 				break;
 			case SDL_KEYUP:
+				if (e.key.keysym.scancode == SDL_SCANCODE_H)
+					PrintInputs();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F1) // (Shared) Toggle between DirectX& Software Rasterizer(‘F1’)
 					pRenderer->CycleRenderer();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F2) // (Shared) Toggle Rotation(On / Off) (‘F2’)
@@ -109,11 +136,15 @@ int main(int argc, char* args[])
 
 		//--------- Timer ---------
 		pTimer->Update();
-		printTimer += pTimer->GetElapsed();
-		if (printTimer >= 1.f)
-		{
-			printTimer = 0.f;
-			std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+
+		if (doFps) {
+			printTimer += pTimer->GetElapsed();
+			if (printTimer >= 1.f)
+			{
+				printTimer = 0.f;
+				if (doFps)
+				std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+			}
 		}
 	}
 	pTimer->Stop();
