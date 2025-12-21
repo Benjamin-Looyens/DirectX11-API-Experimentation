@@ -24,6 +24,7 @@ class AlphaEffect;
 
 namespace dae {
 	struct Camera;
+	struct RenderSettings;
 }
 
 namespace dae
@@ -39,13 +40,10 @@ namespace dae
 		DXRenderer& operator=(const DXRenderer&) = delete;
 		DXRenderer& operator=(DXRenderer&&) noexcept = delete;
 
-		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes);
-		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes) const;
+		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings);
+		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings) const;
 
-		
 		ID3D11Device* GetDevice() const { return m_pDevice; };
-
-		void ToggleRotation();
 
 	private:
 		SDL_Window* m_pWindow{};
@@ -54,12 +52,6 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
-
-		Transform m_WorldTransform{}; // TODO : Store in mesh?
-		float m_RotCounter{};
-
-		// Toggles
-		bool m_DoRotation{ false };
 
 		// DirectX
 		HRESULT InitializeDirectX();

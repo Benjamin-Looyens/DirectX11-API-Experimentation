@@ -75,9 +75,19 @@ dae::DualRasterizer::~DualRasterizer()
 
 void dae::DualRasterizer::Update(const Timer* pTimer)
 {
+	// Update Own Members
 	m_Camera.Update(pTimer);
 
-	m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes);
+	if (m_Settings.doRotation) {
+		m_RotTimer += std::fmod(pTimer->GetElapsed(), PI_2);
+		m_Settings.transform.SetRotationY(m_RotTimer);
+	}
+
+	// Update DirectX
+	m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
+
+	// Update Software
+	//m_pSoftware->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
 }
 
 void dae::DualRasterizer::Render() const
@@ -86,7 +96,7 @@ void dae::DualRasterizer::Render() const
 	//if (m_UseSoftware) m_pSoftware->Render(m_Settings, m_Camera, m_Meshes);
 	//else m_pDirectX->Render(m_Settings, m_Camera, m_Meshes);
 
-	m_pDirectX->Render(m_SolidMeshes, m_AlphaMeshes);
+	m_pDirectX->Render(m_SolidMeshes, m_AlphaMeshes, m_Settings);
 }
 
 void dae::DualRasterizer::ToggleRotation()
@@ -103,9 +113,6 @@ void dae::DualRasterizer::ToggleRotation()
 		std::cout << "OFF\n";
 		break;
 	}
-
-	// HACK : Temporarily calling directly
-	m_pDirectX->ToggleRotation();
 }
 
 void dae::DualRasterizer::ToggleUniformClear()

@@ -63,17 +63,14 @@ DXRenderer::~DXRenderer()
 	if (m_pDevice) m_pDevice->Release();
 }
 
-void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes)
+void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings)
 {
 	if (!m_IsInitialized) return;
 
-	if (m_DoRotation) {
-		m_RotCounter += std::fmod(pTimer->GetElapsed(), PI_2);
-		m_WorldTransform.SetRotationY(m_RotCounter);
-	}
+	// HACK : Maybe I should just pass the world matrix, and not the Render settings entirely (so that it can be const in here)
 
 	// Calculate Current Context Variables
-	Matrix world = m_WorldTransform.GetFull(); // HACK : Maybe I could calculate this in the update function, and then store it to be used here?
+	Matrix world = settings.transform.GetFull(); // Reference ?
 	Matrix worldViewProj = world * cam.viewMatrix * cam.projectMatrix; // Cant be const due to function later
 
 	// Update DirectX Side
@@ -93,7 +90,7 @@ void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& sol
 	}
 }
 
-void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes) const
+void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings) const
 {
 	if (!m_IsInitialized) return;
 
@@ -108,17 +105,14 @@ void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<
 	}
 
 	// Render Alpha Meshes
-	for (const Mesh& mesh : alphaMeshes) {
-		mesh.Render(m_pDeviceContext);
+	if (settings.doFireRender) {
+		for (const Mesh& mesh : alphaMeshes) {
+			mesh.Render(m_pDeviceContext);
+		}
 	}
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
-}
-
-void dae::DXRenderer::ToggleRotation()
-{
-	m_DoRotation = !m_DoRotation;
 }
 
 HRESULT DXRenderer::InitializeDirectX()

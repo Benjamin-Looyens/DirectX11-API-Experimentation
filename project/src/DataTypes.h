@@ -116,3 +116,23 @@ namespace dae {
 		bool m_FullDirty{};
 	};
 }
+
+// Config Types
+struct RenderSettings
+{
+	// Shared
+	bool doRotation{ false };
+	bool doUniformBackGround{ false };
+	CullMode cullMode{ CullMode::BACK_FACE };
+	dae::Transform transform{};
+
+	// Hardware
+	bool doFireRender{ true };
+	SampleTechnique texSamplingTechnique{ SampleTechnique::POINT };
+
+	// Software
+	LightingMode lightingMode{ LightingMode::COMBINED };
+	bool doNormalMap{ true };
+	bool doDepthVisual{ false };
+	bool doBBoxVisual{ false };
+};

@@ -56,24 +56,6 @@ namespace dae {
 		void CycleLightingMode();
 		void CycleRenderer();
 
-		struct RenderSettings
-		{
-			// Shared
-			bool doRotation{ false };
-			bool doUniformBackGround{ false };
-			CullMode cullMode{ CullMode::BACK_FACE };
-
-			// Hardware
-			bool doFireRender{ true };
-			SampleTechnique texSamplingTechnique{ SampleTechnique::POINT };
-
-			// Software
-			LightingMode lightingMode{ LightingMode::COMBINED };
-			bool doNormalMap{ true };
-			bool doDepthVisual{ false };
-			bool doBBoxVisual{ false };
-		};
-
 	private:
 		void InitDirectX();
 		void InitSoftware();
@@ -84,10 +66,14 @@ namespace dae {
 
 		// Common Members
 		Camera m_Camera;
-		std::vector<Mesh> m_SolidMeshes{}; // TODO : Maybe have Alpha meshes & standard ones seperate
-		std::vector<Mesh> m_AlphaMeshes{}; // TODO : Maybe have Alpha meshes & standard ones seperate
+
+		// Idea for better organization:
+		// Maybe have Object class, which stores several SolidMeshes, AlphaMeshes & Textures together with one Transform
+		// Object class then has 2 functions: RenderSolid() & RenderAlpha() which can be called seperately 
+		std::vector<Mesh> m_SolidMeshes{}; 
+		std::vector<Mesh> m_AlphaMeshes{};
 		std::vector<dae::Texture*> m_pTextures{};
-		RenderSettings m_Settings{};
+		::RenderSettings m_Settings{}; // HACK : WHY DO I NEED TO SPECIFY IT IS IN GLOBAL NAMESPACE ??????????????????????? (also in DirectX Renderer)
 
 		// Dual Exclusive Members
 		float m_RotTimer{};
