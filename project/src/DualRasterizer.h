@@ -74,6 +74,9 @@ namespace dae {
 		};
 
 	private:
+		void InitDirectX();
+		void InitSoftware();
+
 		// Renderers
 		DXRenderer* m_pDirectX{};
 		SoftwareRenderer* m_pSoftware{};

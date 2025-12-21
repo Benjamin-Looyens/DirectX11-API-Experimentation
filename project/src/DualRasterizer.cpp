@@ -20,6 +20,10 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 
 	// Camera Initialization
 	m_Camera.Initialize(width, height, 45.0f, { 0.0f, 0.0f, -50.0f });
+	// DirectX Initialization
+	InitDirectX();
+	// Software Initialization
+	InitSoftware();
 }
 
 dae::DualRasterizer::~DualRasterizer()
@@ -210,4 +214,12 @@ void dae::DualRasterizer::CycleLightingMode()
 void dae::DualRasterizer::CycleRenderer()
 {
 	// TODO : Variable control over which renderer to use (hardware vs software)
+}
+
+void dae::DualRasterizer::InitDirectX()
+{
+}
+
+void dae::DualRasterizer::InitSoftware()
+{
 }
