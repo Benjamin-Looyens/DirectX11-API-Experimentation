@@ -39,11 +39,13 @@ namespace dae
 		DXRenderer& operator=(const DXRenderer&) = delete;
 		DXRenderer& operator=(DXRenderer&&) noexcept = delete;
 
-		void Update(const Timer* pTimer, dae::Camera& cam);
-		void Render() const; 
+		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes);
+		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes) const;
+
+		
+		ID3D11Device* GetDevice() const { return m_pDevice; };
 
 		void CycleFiltering();
-
 		void ToggleRotation();
 
 	private:
@@ -55,6 +57,8 @@ namespace dae
 		bool m_IsInitialized{ false };
 
 		// Meshes
+
+
 		Mesh* m_pVehicle{};
 		SolidEffect* m_pVehicleEffect{};
 

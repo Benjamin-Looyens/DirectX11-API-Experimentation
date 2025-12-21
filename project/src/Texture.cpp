@@ -18,12 +18,42 @@
 
 namespace dae
 {
-	Texture::Texture(ID3D11Device* pDevice, SDL_Surface* pSurface)
+	Texture::Texture(SDL_Surface* pSurface)
+		: m_pSurface{ pSurface }, m_pSurfacePixels{ (uint32_t*)pSurface }
+	{}
+
+	Texture::~Texture()
 	{
+		// SDL
+		if (m_pSurface) SDL_FreeSurface(m_pSurface);
+
+		// DirectX
+		if (m_HasInitializedDirectX) {
+			if (m_pResourceView) m_pResourceView->Release();
+			if (m_pResource) m_pResource->Release();
+		}
+	}
+
+	Texture* Texture::LoadFromFile(const std::string& path)
+	{
+		SDL_Surface* pSurface = IMG_Load(path.c_str());
+
+		if (!pSurface) {
+			SDL_FreeSurface(pSurface);
+			return nullptr;
+		}
+
+		return new Texture(pSurface);
+	}
+
+	HRESULT Texture::InitDirectX(ID3D11Device* pDevice)
+	{
+		if (m_HasInitializedDirectX) return 0; // TODO : Check if this is correct syntax for Success in HRESULT
+
 		DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		D3D11_TEXTURE2D_DESC desc{};
-		desc.Width = pSurface->w;
-		desc.Height = pSurface->h;
+		desc.Width = m_pSurface->w;
+		desc.Height = m_pSurface->h;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = format;
@@ -35,12 +65,12 @@ namespace dae
 		desc.MiscFlags = 0;
 
 		D3D11_SUBRESOURCE_DATA initData;
-		initData.pSysMem = pSurface->pixels;
-		initData.SysMemPitch = static_cast<UINT>(pSurface->pitch);
-		initData.SysMemSlicePitch = static_cast<UINT>(pSurface->h * pSurface->pitch);
+		initData.pSysMem = m_pSurface->pixels;
+		initData.SysMemPitch = static_cast<UINT>(m_pSurface->pitch);
+		initData.SysMemSlicePitch = static_cast<UINT>(m_pSurface->h * m_pSurface->pitch);
 
 		HRESULT result = pDevice->CreateTexture2D(&desc, &initData, &m_pResource);
-		if (FAILED(result)) assert(false && "Texture: Texture2D failed to create.");
+		if (FAILED(result)) return result; // Texture: Texture2D failed to create
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 		srvDesc.Format = format;
@@ -48,26 +78,9 @@ namespace dae
 		srvDesc.Texture2D.MipLevels = 1;
 
 		result = pDevice->CreateShaderResourceView(m_pResource, &srvDesc, &m_pResourceView);
-		if (FAILED(result)) assert(false && "Texture: ResourceView failed to create.");
+		if (FAILED(result)) return result; // Texture: ResourceView failed to create
 
-		SDL_FreeSurface(pSurface);
-	}
-
-	Texture::~Texture()
-	{
-		if (m_pResourceView) m_pResourceView->Release();
-		if (m_pResource) m_pResource->Release();
-	}
-
-	Texture* Texture::LoadFromFile(ID3D11Device* pDevice, const std::string& path)
-	{
-		SDL_Surface* pSurface = IMG_Load(path.c_str());
-
-		if (!pSurface) {
-			SDL_FreeSurface(pSurface);
-			return nullptr;
-		}
-
-		return new Texture(pDevice, pSurface);
+		m_HasInitializedDirectX = true;
+		return result; // TODO : Check if I should return something else
 	}
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+// External Includes
+#include <winnt.h>
+
 // Standard Includes
 #include <string>
 #include <vector>
@@ -21,23 +24,24 @@ namespace dae {
 class Mesh
 {
 public:
-	Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex> vertices, std::vector<uint32_t> indices);
+	Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+	Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
 	~Mesh();
 
+	// Direct X
+	HRESULT InitDirectX(ID3D11Device* pDevice);
+	void SetEffect(Effect* pNewEffect); // Really kind of a mess to call InitDirectX -> SetEffect
+	Effect* GetEffect() { return m_pEffect; }
 	void Render(ID3D11DeviceContext* pDeviceContext) const; // Really hate that its not const ref
 
-	Effect* GetEffect() { return m_pEffect; }
-
 private:
-	uint32_t m_NumIndices{};
+	// Software / SDL
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
 
-	Effect* m_pEffect;
-
-	dae::Texture* m_pDiffuse{};
-	dae::Texture* m_pNormal{};
-	dae::Texture* m_pSpecular{};
-	dae::Texture* m_pGloss{};
-
+	// Direct X
+	uint32_t m_NumIndices{}; // TODO : When allowing software rasterizer, get rid of this and just use indices.size()
+	Effect* m_pEffect{};
 	ID3D11Buffer* m_pVertexBuffer{};
 	ID3D11Buffer* m_pIndexBuffer{};
 };

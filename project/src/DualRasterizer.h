@@ -24,6 +24,7 @@ namespace dae {
 	class SoftwareRenderer;
 	class DXRenderer;
 	class Timer;
+	class Texture;
 
 	class DualRasterizer final
 	{
@@ -83,7 +84,9 @@ namespace dae {
 
 		// Common Members
 		Camera m_Camera;
-		std::vector<Mesh> m_Meshes{};
+		std::vector<Mesh> m_SolidMeshes{}; // TODO : Maybe have Alpha meshes & standard ones seperate
+		std::vector<Mesh> m_AlphaMeshes{}; // TODO : Maybe have Alpha meshes & standard ones seperate
+		std::vector<dae::Texture*> m_pTextures{};
 		RenderSettings m_Settings{};
 
 		// Dual Exclusive Members

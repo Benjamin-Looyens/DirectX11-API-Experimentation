@@ -1,7 +1,12 @@
 // Project Includes
 #include "DualRasterizer.h"
-#include "Mesh.h"
 #include "DirectXRenderer.h"
+
+#include "Utils.h"
+
+#include "Texture.h"
+#include "Mesh.h"
+#include "Effect.h"
 
 // External Includes
 
@@ -11,18 +16,51 @@
 
 dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 {
-	m_pDirectX = new DXRenderer(pWindow);
-
 	int width, height;
-
-	//Initialize
 	SDL_GetWindowSize(pWindow, &width, &height);
 
 	// Camera Initialization
 	m_Camera.Initialize(width, height, 45.0f, { 0.0f, 0.0f, -50.0f });
+
+	// Texture Initialization
+	std::string vehicleDiffusePath{ "resources/vehicle_diffuse.png" };
+	std::string vehicleNormalPath{ "resources/vehicle_normal.png" };
+	std::string vehicleSpecularPath{ "resources/vehicle_specular.png" };
+	std::string vehicleGlossPath{ "resources/vehicle_gloss.png" };
+	std::string fireDiffusePath{ "resources/fireFX_diffuse.png" };
+
+	dae::Texture* pDiffuse =		dae::Texture::LoadFromFile(vehicleDiffusePath);
+	dae::Texture* pNormal =			dae::Texture::LoadFromFile(vehicleNormalPath);
+	dae::Texture* pSpecular =		dae::Texture::LoadFromFile(vehicleSpecularPath);
+	dae::Texture* pGloss =			dae::Texture::LoadFromFile(vehicleGlossPath);
+	dae::Texture* pDiffuseFire =	dae::Texture::LoadFromFile(fireDiffusePath);
+
+	m_pTextures.push_back(pDiffuse);
+	m_pTextures.push_back(pNormal);
+	m_pTextures.push_back(pSpecular);
+	m_pTextures.push_back(pGloss);
+
+	m_pTextures.push_back(pDiffuseFire);
+
+	// Mesh Initialization
+	// TODO : Store the vertices & indices within the mesh (need for software rasterizer)
+	std::vector<Vertex> vehicleVerts{};
+	std::vector<uint32_t> vehicleIndices{};
+	Utils::ParseOBJ("resources/vehicle.obj", vehicleVerts, vehicleIndices);
+	m_SolidMeshes.emplace_back(vehicleVerts, vehicleIndices); // Vehicle
+
+	std::vector<Vertex> fireVerts{};
+	std::vector<uint32_t> fireIndices{};
+	Utils::ParseOBJ("resources/fireFX.obj", fireVerts, fireIndices);
+	// HACK : Will copy FULL vertex into input layout, even though it only uses POS and UV
+	m_AlphaMeshes.emplace_back(fireVerts, fireIndices); // Fire
+
 	// DirectX Initialization
+	m_pDirectX = new DXRenderer(pWindow);
 	InitDirectX();
+
 	// Software Initialization
+	//m_pSoftware = new SoftwareRenderer(pWindow);
 	InitSoftware();
 }
 
@@ -30,13 +68,16 @@ dae::DualRasterizer::~DualRasterizer()
 {
 	delete m_pDirectX;
 	delete m_pSoftware;
+
+	for (Texture* pTexture : m_pTextures)
+		delete pTexture;
 }
 
 void dae::DualRasterizer::Update(const Timer* pTimer)
 {
 	m_Camera.Update(pTimer);
 
-	m_pDirectX->Update(pTimer, m_Camera);
+	m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes);
 }
 
 void dae::DualRasterizer::Render() const
@@ -45,7 +86,7 @@ void dae::DualRasterizer::Render() const
 	//if (m_UseSoftware) m_pSoftware->Render(m_Settings, m_Camera, m_Meshes);
 	//else m_pDirectX->Render(m_Settings, m_Camera, m_Meshes);
 
-	m_pDirectX->Render();
+	m_pDirectX->Render(m_SolidMeshes, m_AlphaMeshes);
 }
 
 void dae::DualRasterizer::ToggleRotation()
@@ -185,8 +226,13 @@ void dae::DualRasterizer::CycleSampleTechnique()
 		break;
 	}
 
-	// HACK : Temporarily calling directly
-	m_pDirectX->CycleFiltering();
+	// Update Sampling for every Mesh/Effect combo
+	for (Mesh& mesh : m_SolidMeshes) {
+		mesh.GetEffect()->SetSampleState(m_Settings.texSamplingTechnique);
+	}
+	for (Mesh& mesh : m_AlphaMeshes) {
+		mesh.GetEffect()->SetSampleState(m_Settings.texSamplingTechnique);
+	}
 }
 
 void dae::DualRasterizer::CycleLightingMode()
@@ -218,6 +264,44 @@ void dae::DualRasterizer::CycleRenderer()
 
 void dae::DualRasterizer::InitDirectX()
 {
+	ID3D11Device* pDevice = m_pDirectX->GetDevice();
+
+	HRESULT result;
+	for (Texture* pTexture : m_pTextures) {
+		result = pTexture->InitDirectX(pDevice);
+		if (FAILED(result)); // TODO : Do something if failed
+	}
+
+	for (Mesh& mesh : m_SolidMeshes) {
+		result = mesh.InitDirectX(pDevice);
+		if (FAILED(result)); // TODO : Do something if failed
+	}
+
+	for (Mesh& mesh : m_AlphaMeshes) {
+		result = mesh.InitDirectX(pDevice);
+		if (FAILED(result)); // TODO : Do something if failed
+	}
+
+	// Create & Add Effects
+	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
+	SolidEffect* pVehicleEffect = new SolidEffect(pDevice, vehicleEffectPath);
+
+	// HACK : Temporarily accessing by index (NEED TO FIX!!)
+	pVehicleEffect->SetDiffuseMap(m_pTextures[0]);
+	pVehicleEffect->SetNormalMap(m_pTextures[1]);
+	pVehicleEffect->SetSpecularMap(m_pTextures[2]);
+	pVehicleEffect->SetGlossinessMap(m_pTextures[3]);
+
+	std::wstring fireEffectPath{ L"resources/Fire.fx" };
+	AlphaEffect* pFireEffect = new AlphaEffect(pDevice, fireEffectPath);
+
+	// HACK : Temporarily accessing by index (NEED TO FIX!!)
+	pFireEffect->SetDiffuseMap(m_pTextures[4]);
+
+	// Effect -> Mesh Linking
+	// HACK : Temporarily accessing by index (NEED TO FIX!!)
+	m_SolidMeshes[0].SetEffect(pVehicleEffect);
+	m_AlphaMeshes[0].SetEffect(pFireEffect);
 }
 
 void dae::DualRasterizer::InitSoftware()

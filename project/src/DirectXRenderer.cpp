@@ -36,54 +36,6 @@ DXRenderer::DXRenderer(SDL_Window* pWindow) :
 	{
 		std::cout << "DirectX initialization failed with error [" << result << "]!\n";
 	}
-
-	// Vehicle Texture Initilization
-	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
-	std::string vehicleDiffusePath{ "resources/vehicle_diffuse.png" };
-	std::string vehicleNormalPath{ "resources/vehicle_normal.png" };
-	std::string vehicleSpecularPath{ "resources/vehicle_specular.png" };
-	std::string vehicleGlossPath{ "resources/vehicle_gloss.png" };
-
-	m_pVehicleEffect = new SolidEffect(m_pDevice, vehicleEffectPath);
-
-	dae::Texture* pDiffuse = dae::Texture::LoadFromFile(m_pDevice, vehicleDiffusePath);
-	dae::Texture* pNormal = dae::Texture::LoadFromFile(m_pDevice, vehicleNormalPath);
-	dae::Texture* pSpecular = dae::Texture::LoadFromFile(m_pDevice, vehicleSpecularPath);
-	dae::Texture* pGloss = dae::Texture::LoadFromFile(m_pDevice, vehicleGlossPath);
-
-	m_pVehicleEffect->SetDiffuseMap(pDiffuse);
-	m_pVehicleEffect->SetNormalMap(pNormal);
-	m_pVehicleEffect->SetSpecularMap(pSpecular);
-	m_pVehicleEffect->SetGlossinessMap(pGloss);
-
-	// Fire Texture Initilization
-	std::wstring fireEffectPath{ L"resources/Fire.fx" };
-	std::string fireDiffusePath{ "resources/fireFX_diffuse.png" };
-
-	m_pFireEffect = new AlphaEffect(m_pDevice, fireEffectPath);
-
-	dae::Texture* pDiffuseFire = dae::Texture::LoadFromFile(m_pDevice, fireDiffusePath);
-
-	m_pFireEffect->SetDiffuseMap(pDiffuseFire);
-
-	// Mesh Initialization
-	std::vector<Vertex> vehicleVerts{};
-	std::vector<uint32_t> vehicleIndices{};
-	Utils::ParseOBJ("resources/vehicle.obj", vehicleVerts, vehicleIndices);
-	m_pVehicle = new Mesh(m_pDevice, m_pVehicleEffect, vehicleVerts, vehicleIndices);
-
-	std::vector<Vertex> fireVerts{};
-	std::vector<uint32_t> fireIndices{};
-	Utils::ParseOBJ("resources/fireFX.obj", fireVerts, fireIndices);
-	m_pFire = new Mesh(m_pDevice, m_pFireEffect, fireVerts, fireIndices); // HACK : Will copy FULL vertex into input layout, even though it only uses POS and UV
-
-	// Free Temporary Memory Initializations
-	delete pDiffuse;
-	delete pNormal;
-	delete pSpecular;
-	delete pGloss;
-
-	delete pDiffuseFire;
 }
 
 DXRenderer::~DXRenderer()
@@ -116,7 +68,7 @@ DXRenderer::~DXRenderer()
 	delete m_pFireEffect;
 }
 
-void DXRenderer::Update(const Timer* pTimer, Camera& cam)
+void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes)
 {
 	if (!m_IsInitialized) return;
 
@@ -130,14 +82,23 @@ void DXRenderer::Update(const Timer* pTimer, Camera& cam)
 	Matrix worldViewProj = world * cam.viewMatrix * cam.projectMatrix; // Cant be const due to function later
 
 	// Update DirectX Side
-	m_pVehicleEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
-	m_pVehicleEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&cam.origin));
-	m_pVehicleEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+	for (Mesh& mesh : solidMeshes) {
+		// Not Ideal, but yep
+		SolidEffect* pEffect = dynamic_cast<SolidEffect*>(mesh.GetEffect());
 
-	m_pFireEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+		if (pEffect) {
+			pEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
+			pEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&cam.origin));
+			pEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+		}
+	}
+	
+	for (Mesh& mesh : alphaMeshes) {
+		mesh.GetEffect()->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
+	}
 }
 
-void DXRenderer::Render() const
+void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes) const
 {
 	if (!m_IsInitialized) return;
 
@@ -147,10 +108,14 @@ void DXRenderer::Render() const
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Render Solid Meshes
-	if (m_pVehicle) m_pVehicle->Render(m_pDeviceContext);
+	for (const Mesh& mesh : solidMeshes) {
+		mesh.Render(m_pDeviceContext);
+	}
 
 	// Render Alpha Meshes
-	if (m_pFire) m_pFire->Render(m_pDeviceContext);
+	for (const Mesh& mesh : alphaMeshes) {
+		mesh.Render(m_pDeviceContext);
+	}
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
