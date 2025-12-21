@@ -120,7 +120,17 @@ int main(int argc, char* args[])
 					pRenderer->ToggleUniformClear();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F11) { // (Shared) Toggle Print FPS(On / Off) (‘F11’)
 					doFps = !doFps;
-					std::cout << "[SHARED] FPS = ENABLED\n";
+
+					std::cout << "[SHARED] FPS = ";
+					switch (doFps)
+					{
+					case true:
+						std::cout << "ON\n";
+						break;
+					case false:
+						std::cout << "OFF\n";
+						break;
+					}
 				}
 
 				break;
