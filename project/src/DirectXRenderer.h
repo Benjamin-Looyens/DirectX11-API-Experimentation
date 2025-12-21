@@ -45,7 +45,6 @@ namespace dae
 		
 		ID3D11Device* GetDevice() const { return m_pDevice; };
 
-		void CycleFiltering();
 		void ToggleRotation();
 
 	private:
@@ -56,19 +55,7 @@ namespace dae
 
 		bool m_IsInitialized{ false };
 
-		// Meshes
-
-
-		Mesh* m_pVehicle{};
-		SolidEffect* m_pVehicleEffect{};
-
-		Mesh* m_pFire{};
-		AlphaEffect* m_pFireEffect{};
-
 		Transform m_WorldTransform{}; // TODO : Store in mesh?
-
-		SampleTechnique m_CurSamTech{ SampleTechnique::POINT };
-
 		float m_RotCounter{};
 
 		// Toggles

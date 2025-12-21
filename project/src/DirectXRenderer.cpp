@@ -61,11 +61,6 @@ DXRenderer::~DXRenderer()
 	}
 
 	if (m_pDevice) m_pDevice->Release();
-
-	delete m_pVehicle;
-	delete m_pVehicleEffect;
-	delete m_pFire;
-	delete m_pFireEffect;
 }
 
 void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes)
@@ -119,14 +114,6 @@ void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<
 
 	// Swap Buffers (Present)
 	m_pSwapChain->Present(0, 0);
-}
-
-void dae::DXRenderer::CycleFiltering()
-{
-	m_CurSamTech = static_cast<SampleTechnique>((static_cast<uint8_t>(m_CurSamTech) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
-
-	m_pVehicleEffect->SetSampleState(m_CurSamTech);
-	m_pFireEffect->SetSampleState(m_CurSamTech);
 }
 
 void dae::DXRenderer::ToggleRotation()
