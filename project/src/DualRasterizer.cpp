@@ -83,11 +83,11 @@ void dae::DualRasterizer::Update(const Timer* pTimer)
 		m_Settings.transform.SetRotationY(m_RotTimer);
 	}
 
-	// Update DirectX
+	// Update Current Renderer
+	//if (m_UseSoftware) m_pSoftware->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
+	//else m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
+	
 	m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
-
-	// Update Software
-	//m_pSoftware->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
 }
 
 void dae::DualRasterizer::Render() const
@@ -266,7 +266,17 @@ void dae::DualRasterizer::CycleLightingMode()
 
 void dae::DualRasterizer::CycleRenderer()
 {
-	// TODO : Variable control over which renderer to use (hardware vs software)
+	m_UseSoftware = !m_UseSoftware;
+
+	switch (m_UseSoftware)
+	{
+	case true:
+		std::cout << "SOFTWARE\n";
+		break;
+	case false:
+		std::cout << "DIRECT X\n";
+		break;
+	}
 }
 
 void dae::DualRasterizer::InitDirectX()

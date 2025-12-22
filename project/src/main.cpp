@@ -42,7 +42,7 @@ void PrintInputs()
 		"F6  - Toggle Normal Map Sampling\n" <<
 		"F7  - Toggle Depth Buffer Rendering\n" <<
 		"F8  - Toggle Bounding Box Rendering\n" <<
-		"****************************************\n";
+		"****************************************\n\n";
 }
 
 int main(int argc, char* args[])
@@ -73,7 +73,6 @@ int main(int argc, char* args[])
 
 	//Initialize "framework"
 	const auto pTimer = new Timer();
-	//const auto pRenderer = new Renderer(pWindow);
 	const auto pRenderer = new DualRasterizer(pWindow);
 
 	//Start loop

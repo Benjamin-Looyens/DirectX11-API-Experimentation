@@ -95,7 +95,13 @@ void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<
 	if (!m_IsInitialized) return;
 
 	// Clear Views
-	constexpr float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
+	float color[4] = { 0.0f, 0.0f, 0.3f, 1.0f };
+	if (settings.doUniformBackGround) {
+		const dae::ColorRGB& bg = settings.uniformBackGround;
+		color[0] = bg.r;
+		color[1] = bg.g;
+		color[2] = bg.b;
+	}
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
