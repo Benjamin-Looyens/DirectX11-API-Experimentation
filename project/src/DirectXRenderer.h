@@ -6,6 +6,7 @@
 #include "SDL_surface.h"
 #include "SDL_image.h"
 
+// HACK : Are these necessary to include?
 // DirectX Headers
 #include <dxgi.h>
 #include <d3d11.h>
@@ -66,5 +67,9 @@ namespace dae
 
 		ID3D11Resource* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
+
+		ID3D11RasterizerState* m_pNoCull{};
+		ID3D11RasterizerState* m_pFrontCull{};
+		ID3D11RasterizerState* m_pBackCull{};
 	};
 }

@@ -41,6 +41,9 @@ DXRenderer::DXRenderer(SDL_Window* pWindow) :
 DXRenderer::~DXRenderer()
 {
 	// Release in reverse order
+	if (m_pNoCull) m_pNoCull->Release();
+	if (m_pFrontCull) m_pFrontCull->Release();
+	if (m_pBackCull) m_pBackCull->Release();
 	if (m_pRenderTargetView) m_pRenderTargetView->Release();
 	if (m_pRenderTargetBuffer) m_pRenderTargetBuffer->Release();
 	if (m_pDepthStencilView) m_pDepthStencilView->Release();
@@ -108,33 +111,18 @@ void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	// Set Solid Raster State
-	D3D11_RASTERIZER_DESC rasterDesc{};
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = FALSE;
-	rasterDesc.DepthClipEnable = TRUE;
-
 	switch (settings.cullMode) {
 	case CullMode::BACK_FACE:
-		rasterDesc.CullMode = D3D11_CULL_BACK;
+		m_pDeviceContext->RSSetState(m_pBackCull);
 		break;
 	case CullMode::FRONT_FACE:
-		rasterDesc.CullMode = D3D11_CULL_FRONT;
+		m_pDeviceContext->RSSetState(m_pFrontCull);
 		break;
 	case CullMode::NONE:
-		rasterDesc.CullMode = D3D11_CULL_NONE;
+		m_pDeviceContext->RSSetState(m_pNoCull);
 		break;
 	}
 	
-	// HACK : This looks very stupid
-	ID3D11RasterizerState* pRasterState{};
-	HRESULT result = m_pDevice->CreateRasterizerState(&rasterDesc, &pRasterState);
-	
-
-	if (pRasterState) {
-		m_pDeviceContext->RSSetState(pRasterState);
-		pRasterState->Release();
-	}
-
 	// Render Solid Meshes
 	for (const Mesh& mesh : solidMeshes) {
 		mesh.Render(m_pDeviceContext);
@@ -256,6 +244,23 @@ HRESULT DXRenderer::InitializeDirectX()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
+
+	// Initialize Rasterizer States
+	D3D11_RASTERIZER_DESC rasterDesc{};
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = FALSE;
+	rasterDesc.DepthClipEnable = TRUE;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	result = m_pDevice->CreateRasterizerState(&rasterDesc, &m_pBackCull);
+	if (FAILED(result)) return result;
+	
+	rasterDesc.CullMode = D3D11_CULL_FRONT;
+	result = m_pDevice->CreateRasterizerState(&rasterDesc, &m_pFrontCull);
+	if (FAILED(result)) return result;
+
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	result = m_pDevice->CreateRasterizerState(&rasterDesc, &m_pNoCull);
+	if (FAILED(result)) return result;
 
 	// Release Temporary Pointers
 	pFactory->Release();
