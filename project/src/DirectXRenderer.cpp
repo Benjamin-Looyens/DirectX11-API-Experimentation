@@ -73,18 +73,20 @@ void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& sol
 	Matrix world = settings.transform.GetFull(); // Reference ?
 	Matrix worldViewProj = world * cam.viewMatrix * cam.projectMatrix; // Cant be const due to function later
 
-	// Update DirectX Side
+	// Render Solid Meshes
 	for (Mesh& mesh : solidMeshes) {
 		// Not Ideal, but yep
 		SolidEffect* pEffect = dynamic_cast<SolidEffect*>(mesh.GetEffect());
 
 		if (pEffect) {
+
 			pEffect->GetWorld()->SetMatrix(reinterpret_cast<float*>(&world));
 			pEffect->GetCameraPos()->SetFloatVector(reinterpret_cast<float*>(&cam.origin));
 			pEffect->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 		}
 	}
 	
+	// Render Alpha Meshes
 	for (Mesh& mesh : alphaMeshes) {
 		mesh.GetEffect()->GetWorldViewProj()->SetMatrix(reinterpret_cast<float*>(&worldViewProj));
 	}
@@ -104,6 +106,34 @@ void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<
 	}
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	// Set Solid Raster State
+	D3D11_RASTERIZER_DESC rasterDesc{};
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = FALSE;
+	rasterDesc.DepthClipEnable = TRUE;
+
+	switch (settings.cullMode) {
+	case CullMode::BACK_FACE:
+		rasterDesc.CullMode = D3D11_CULL_BACK;
+		break;
+	case CullMode::FRONT_FACE:
+		rasterDesc.CullMode = D3D11_CULL_FRONT;
+		break;
+	case CullMode::NONE:
+		rasterDesc.CullMode = D3D11_CULL_NONE;
+		break;
+	}
+	
+	// HACK : This looks very stupid
+	ID3D11RasterizerState* pRasterState{};
+	HRESULT result = m_pDevice->CreateRasterizerState(&rasterDesc, &pRasterState);
+	
+
+	if (pRasterState) {
+		m_pDeviceContext->RSSetState(pRasterState);
+		pRasterState->Release();
+	}
 
 	// Render Solid Meshes
 	for (const Mesh& mesh : solidMeshes) {

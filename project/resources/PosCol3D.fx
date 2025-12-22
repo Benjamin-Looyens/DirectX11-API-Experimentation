@@ -145,7 +145,7 @@ technique11 DefaultTechnique
 {
     pass P0
     {
-        SetRasterizerState(gRasterState);
+        //SetRasterizerState(gRasterState);
         SetDepthStencilState(gDepthStencState, 0);
         SetBlendState(gBlendState, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
         SetVertexShader( CompileShader( vs_5_0, VS() ) );
