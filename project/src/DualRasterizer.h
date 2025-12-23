@@ -72,7 +72,8 @@ namespace dae {
 		// Object class then has 2 functions: RenderSolid() & RenderAlpha() which can be called seperately 
 		std::vector<Mesh> m_SolidMeshes{}; 
 		std::vector<Mesh> m_AlphaMeshes{};
-		std::vector<dae::Texture*> m_pTextures{};
+		std::vector<dae::Texture*> m_pSolidTextures{};
+		std::vector<dae::Texture*> m_pAlphaTextures{};
 		::RenderSettings m_Settings{}; // HACK : WHY DO I NEED TO SPECIFY IT IS IN GLOBAL NAMESPACE ??????????????????????? (also in DirectX Renderer)
 
 		// Dual Exclusive Members

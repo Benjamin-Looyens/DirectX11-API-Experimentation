@@ -36,12 +36,12 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 	dae::Texture* pGloss =			dae::Texture::LoadFromFile(vehicleGlossPath);
 	dae::Texture* pDiffuseFire =	dae::Texture::LoadFromFile(fireDiffusePath);
 
-	m_pTextures.push_back(pDiffuse);
-	m_pTextures.push_back(pNormal);
-	m_pTextures.push_back(pSpecular);
-	m_pTextures.push_back(pGloss);
+	m_pSolidTextures.push_back(pDiffuse);
+	m_pSolidTextures.push_back(pNormal);
+	m_pSolidTextures.push_back(pSpecular);
+	m_pSolidTextures.push_back(pGloss);
 
-	m_pTextures.push_back(pDiffuseFire);
+	m_pAlphaTextures.push_back(pDiffuseFire);
 
 	// Mesh Initialization
 	// TODO : Store the vertices & indices within the mesh (need for software rasterizer)
@@ -70,7 +70,10 @@ dae::DualRasterizer::~DualRasterizer()
 	m_AlphaMeshes.clear();
 	m_SolidMeshes.clear();
 	
-	for (Texture* pTexture : m_pTextures)
+	for (Texture* pTexture : m_pSolidTextures)
+		delete pTexture;
+
+	for (Texture* pTexture : m_pAlphaTextures)
 		delete pTexture;
 
 	delete m_pDirectX;
@@ -288,7 +291,12 @@ void dae::DualRasterizer::InitDirectX()
 	ID3D11Device* pDevice = m_pDirectX->GetDevice();
 
 	HRESULT result;
-	for (Texture* pTexture : m_pTextures) {
+	for (Texture* pTexture : m_pSolidTextures) {
+		result = pTexture->InitDirectX(pDevice);
+		if (FAILED(result)); // TODO : Do something if failed
+	}
+
+	for (Texture* pTexture : m_pAlphaTextures) {
 		result = pTexture->InitDirectX(pDevice);
 		if (FAILED(result)); // TODO : Do something if failed
 	}
@@ -307,17 +315,18 @@ void dae::DualRasterizer::InitDirectX()
 	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
 	SolidEffect* pVehicleEffect = new SolidEffect(pDevice, vehicleEffectPath);
 
+	// TODO : Access textures in sets of 4, which are then added to mesh TextureData
 	// HACK : Temporarily accessing by index (NEED TO FIX!!)
-	pVehicleEffect->SetDiffuseMap(m_pTextures[0]);
-	pVehicleEffect->SetNormalMap(m_pTextures[1]);
-	pVehicleEffect->SetSpecularMap(m_pTextures[2]);
-	pVehicleEffect->SetGlossinessMap(m_pTextures[3]);
+	pVehicleEffect->SetDiffuseMap(m_pSolidTextures[0]);
+	pVehicleEffect->SetNormalMap(m_pSolidTextures[1]);
+	pVehicleEffect->SetSpecularMap(m_pSolidTextures[2]); 
+	pVehicleEffect->SetGlossinessMap(m_pSolidTextures[3]);
 
 	std::wstring fireEffectPath{ L"resources/Fire.fx" };
 	AlphaEffect* pFireEffect = new AlphaEffect(pDevice, fireEffectPath);
 
 	// HACK : Temporarily accessing by index (NEED TO FIX!!)
-	pFireEffect->SetDiffuseMap(m_pTextures[4]);
+	pFireEffect->SetDiffuseMap(m_pAlphaTextures[0]);
 
 	// Effect -> Mesh Linking
 	// HACK : Temporarily accessing by index (NEED TO FIX!!)
