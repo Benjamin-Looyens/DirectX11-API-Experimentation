@@ -13,6 +13,7 @@ set(SOURCES
     "src/Texture.cpp"
     "src/Utils.cpp"
     "src/DualRasterizer.cpp"
+    "src/SoftwareRenderer.cpp"
 )
 
 # Create the executable

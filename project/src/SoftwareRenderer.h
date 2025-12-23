@@ -3,33 +3,29 @@
 #include <vector>
 
 #include "Camera.h"
+#include "DataTypes.h"
+#include "Mesh.h"
 
 struct SDL_Window;
 struct SDL_Surface;
 
 namespace dae
 {
-	class Texture;
-	
-	struct Mesh;
-	struct Vertex;
-	struct Vertex_Out;
 	class Timer;
-	class Scene;
 
-	class Renderer final
+	class SoftwareRenderer final
 	{
 	public:
-		Renderer(SDL_Window* pWindow);
-		~Renderer();
+		SoftwareRenderer(SDL_Window* pWindow);
+		~SoftwareRenderer();
 
-		Renderer(const Renderer&) = delete;
-		Renderer(Renderer&&) noexcept = delete;
-		Renderer& operator=(const Renderer&) = delete;
-		Renderer& operator=(Renderer&&) noexcept = delete;
+		SoftwareRenderer(const SoftwareRenderer&) = delete;
+		SoftwareRenderer(SoftwareRenderer&&) noexcept = delete;
+		SoftwareRenderer& operator=(const SoftwareRenderer&) = delete;
+		SoftwareRenderer& operator=(SoftwareRenderer&&) noexcept = delete;
 
-		void Update(Timer* pTimer);
-		void Render();
+		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings);
+		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings);
 
 		bool SaveBufferToImage() const;
 
@@ -54,7 +50,7 @@ namespace dae
 		};
 
 	private:
-		void VertexTransformationFunction(const Matrix& worldMat, const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
+		void VertexTransformationFunction(const Matrix& worldMat, const Camera& cam, const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_out) const;
 		void UpdateColor(const uint32_t& index, ColorRGB& col); // HACK : Not referenced as const, is kinda bad practice
 
 		LightingMode m_CurMode{ LightingMode::Combined };
@@ -65,14 +61,7 @@ namespace dae
 		SDL_Surface* m_pBackBuffer{ nullptr };
 		uint32_t* m_pBackBufferPixels{};
 		
-		float m_RotCounter{};
-		Matrix m_WorldMatrix{};
-
-		std::vector<Mesh> m_Meshes;
-		
 		float* m_pDepthBuffer{};
-
-		Camera m_Camera{};
 
 		int m_Width{};
 		int m_Height{};
@@ -84,8 +73,5 @@ namespace dae
 		bool m_UseNormalMap{ true };
 
 		bool m_VerticesDirty{ true };
-
-		const Vector3 m_CameraStartPos{ 0.0f, 0.0f, 0.0f };
-		const Vector3 m_MeshPos{ 0.0f, 0.0f, 50.0f };
 	};
 }

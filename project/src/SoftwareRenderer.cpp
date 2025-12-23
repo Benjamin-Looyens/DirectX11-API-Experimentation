@@ -3,10 +3,11 @@
 #include "SDL_surface.h"
 
 //Project includes
-#include "Renderer.h"
-#include "Maths.h"
+#include "SoftwareRenderer.h"
+#include "Math.h"
 #include "Texture.h"
 #include "Utils.h"
+#include "DataTypes.h"
 
 // Standard includes
 #include <limits>
@@ -15,7 +16,7 @@
 
 using namespace dae;
 
-Renderer::Renderer(SDL_Window* pWindow) :
+SoftwareRenderer::SoftwareRenderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow)
 {
 	//Initialize
@@ -26,51 +27,22 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
 	m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
 	m_pDepthBuffer = new float[m_Width * m_Height];
-
-	// Initialize Meshes
-	m_Meshes.push_back({});
-	if (!Utils::ParseOBJ("resources/vehicle.obj", m_Meshes[0].vertices, m_Meshes[0].indices)) {
-		assert(false && "Mesh Could not be Initialized!");
-	}
-	m_Meshes[0].primitiveTopology = PrimitiveTopology::TriangleList;
-	m_Meshes[0].textureData = { Texture::LoadFromFile("resources/vehicle_diffuse.png"), 
-								Texture::LoadFromFile("resources/vehicle_normal.png"), 
-								Texture::LoadFromFile("resources/vehicle_specular.png"),
-								Texture::LoadFromFile("resources/vehicle_gloss.png") };
-	m_Meshes[0].worldTransform.SetTranslation(m_MeshPos);
-
-	//Initialize Camera
-	m_Camera.Initialize(m_Width, m_Height, 45.0f, m_CameraStartPos);
-	m_Camera.farPlane = 0.1f;
-	m_Camera.farPlane = 100.0f;
 }
 
-Renderer::~Renderer()
+SoftwareRenderer::~SoftwareRenderer()
 {
 	delete[] m_pDepthBuffer;
-
-	// HACK : Pretty silly way to go about it
-	for (Mesh& mesh : m_Meshes) {
-		mesh.textureData.FreeMemory();
-	}
 }
 
-void Renderer::Update(Timer* pTimer)
+void SoftwareRenderer::Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings)
 {
-	m_Camera.Update(pTimer);
-	if (m_Camera.updatedMatricesThisFrame) m_VerticesDirty = true;
-
-	if (m_DoRotation) {
-		m_RotCounter += std::fmod(pTimer->GetElapsed(), PI_2);
-
-		for (Mesh& mesh : m_Meshes) {
-			mesh.worldTransform.SetRotationY(m_RotCounter);
-		}
-		m_VerticesDirty = true;
+	// Enter [Projection Stage]
+	for (Mesh& mesh : solidMeshes) {
+		VertexTransformationFunction(settings.transform.GetFull(), cam, mesh.GetVertices(), mesh.GetMutableVertsOut());
 	}
 }
 
-void Renderer::Render()
+void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings)
 {
 	// Clear BackBuffer
 	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 75, 75, 75));
@@ -81,22 +53,14 @@ void Renderer::Render()
 	// Reset Depth buffer
 	std::fill_n(m_pDepthBuffer, m_Width * m_Height, std::numeric_limits<float>::max());
 
-	// Enter [Projection Stage]
-	if (m_VerticesDirty) {
-		for (Mesh& mesh : m_Meshes) {
-			VertexTransformationFunction(mesh.worldTransform.GetFull(), mesh.vertices, mesh.vertices_out);
-		}
-		m_VerticesDirty = false;
-	}
-
 	// Enter [Rasterization Stage]
-	for (const Mesh& mesh : m_Meshes) {
-		const auto& indices = mesh.indices;
-		const auto& vertices = mesh.vertices_out;
+	for (const Mesh& mesh : solidMeshes) {
+		const auto& indices = mesh.GetIndices();
+		const auto& vertices = mesh.GetVertsOut();
 
 		int loopAdd{};
 		int sizeCheck{};
-		switch (mesh.primitiveTopology) {
+		switch (mesh.GetTopology()) {
 		case PrimitiveTopology::TriangleList:
 			loopAdd = 3;
 			sizeCheck = 0;
@@ -203,8 +167,8 @@ void Renderer::Render()
 									zDepth, wDepth
 								},
 
-								Utils::VertexInterpolate<ColorRGB>(v0.color, v1.color, v2.color, data),		 // Color
 								Utils::VertexInterpolate<Vector2>(v0.uv, v1.uv, v2.uv, data),				 // UV
+								Utils::VertexInterpolate<ColorRGB>(v0.color, v1.color, v2.color, data),		 // Color
 								Utils::VertexInterpolate<Vector3>(v0.normal, v1.normal, v2.normal, data),	 // Normal
 								Utils::VertexInterpolate<Vector3>(v0.tangent, v1.tangent, v2.tangent, data), // Tangent
 								Utils::VertexInterpolate<Vector3>(v0.viewDir, v1.viewDir, v2.viewDir, data), // ViewDirection
@@ -219,7 +183,7 @@ void Renderer::Render()
 								continue;
 							}
 
-							if (Utils::PixelShade(interpolated, mesh.textureData, m_CurMode, mesh.vertMode, -lightDir.Normalized(), m_UseNormalMap, finalColor)) {
+							if (Utils::PixelShade(interpolated, mesh.GetTextures(), settings.lightingMode, mesh.GetVertMode(), -lightDir.Normalized(), m_UseNormalMap, finalColor)) {
 								UpdateColor(pixelIndex, finalColor);
 							}
 							
@@ -237,12 +201,12 @@ void Renderer::Render()
 	SDL_UpdateWindowSurface(m_pWindow);
 }
 
-void Renderer::VertexTransformationFunction(const Matrix& worldMat, const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_OUT) const
+void SoftwareRenderer::VertexTransformationFunction(const Matrix& worldMat, const Camera& cam, const std::vector<Vertex>& vertices_in, std::vector<Vertex_Out>& vertices_OUT) const
 {
 	vertices_OUT.resize(vertices_in.size());
 	
-	const float& aspectRatio = m_Camera.aspectRatio;
-	const Matrix worldViewProjectionMatrix = worldMat * m_Camera.viewMatrix * m_Camera.projectMatrix;
+	const float& aspectRatio = cam.aspectRatio;
+	const Matrix worldViewProjectionMatrix = worldMat * cam.viewMatrix * cam.projectMatrix;
 
 	std::transform(std::execution::par, begin(vertices_in), end(vertices_in), begin(vertices_OUT),
 		[&](const Vertex& vert) {
@@ -255,17 +219,17 @@ void Renderer::VertexTransformationFunction(const Matrix& worldMat, const std::v
 									view.w
 			}; 
 
-			return Vertex_Out{ clip, vert.color, vert.uv, 
+			return Vertex_Out{ clip, vert.uv, vert.color,
 				
 				worldMat.TransformVector(vert.normal),
 				worldMat.TransformVector(vert.tangent),
-				(worldPos - m_Camera.origin).Normalized()
+				(worldPos - cam.origin).Normalized()
 			};
 		}
 	);
 }
 
-void dae::Renderer::ToggleBoundsRender()
+void dae::SoftwareRenderer::ToggleBoundsRender()
 {
 	m_DoBoundsRender = !m_DoBoundsRender;
 
@@ -281,7 +245,7 @@ void dae::Renderer::ToggleBoundsRender()
 	}
 }
 
-void dae::Renderer::ToggleWireFrameRender()
+void dae::SoftwareRenderer::ToggleWireFrameRender()
 {
 	m_DoWireFrameRender = !m_DoWireFrameRender;
 
@@ -297,7 +261,7 @@ void dae::Renderer::ToggleWireFrameRender()
 	}
 }
 
-void dae::Renderer::ToggleDepthRender()
+void dae::SoftwareRenderer::ToggleDepthRender()
 {
 	m_DoDepthRender = !m_DoDepthRender;
 
@@ -313,7 +277,7 @@ void dae::Renderer::ToggleDepthRender()
 	}
 }
 
-void dae::Renderer::ToggleRotation()
+void dae::SoftwareRenderer::ToggleRotation()
 {
 	m_DoRotation = !m_DoRotation;
 
@@ -329,7 +293,7 @@ void dae::Renderer::ToggleRotation()
 	}
 }
 
-void dae::Renderer::ToggleNormalMap()
+void dae::SoftwareRenderer::ToggleNormalMap()
 {
 	m_UseNormalMap = !m_UseNormalMap;
 
@@ -345,7 +309,7 @@ void dae::Renderer::ToggleNormalMap()
 	}
 }
 
-void dae::Renderer::CycleLightingMode()
+void dae::SoftwareRenderer::CycleLightingMode()
 {
 	// Yuck
 	m_CurMode = static_cast<LightingMode>((static_cast<uint8_t>(m_CurMode) + 1) % static_cast<uint8_t>(LightingMode::ModeAmount)); 
@@ -354,28 +318,22 @@ void dae::Renderer::CycleLightingMode()
 	std::cout << "Rendering Mode = ";
 	switch (m_CurMode)
 	{
-	case Renderer::LightingMode::ObservedArea:
+	case SoftwareRenderer::LightingMode::ObservedArea:
 		std::cout << "OBSERVED AREA\n";
 		break;
-	case Renderer::LightingMode::Diffuse:
+	case SoftwareRenderer::LightingMode::Diffuse:
 		std::cout << "LAMBERT DIFFUSE\n";
 		break;
-	case Renderer::LightingMode::Specular:
+	case SoftwareRenderer::LightingMode::Specular:
 		std::cout << "PHONG SPECULAR\n";
 		break;
-	case Renderer::LightingMode::Combined:
+	case SoftwareRenderer::LightingMode::Combined:
 		std::cout << "COMBINED\n";
 		break;
 	}
 }
 
-void dae::Renderer::ResetCamera()
-{
-	m_Camera.SetOrigin(m_CameraStartPos);
-	m_Camera.ResetOrientation();
-}
-
-void dae::Renderer::UpdateColor(const uint32_t& index, ColorRGB& col)
+void dae::SoftwareRenderer::UpdateColor(const uint32_t& index, ColorRGB& col)
 {
 	col.MaxToOne();
 
@@ -385,7 +343,7 @@ void dae::Renderer::UpdateColor(const uint32_t& index, ColorRGB& col)
 		static_cast<uint8_t>(col.b * 255));
 }
 
-bool Renderer::SaveBufferToImage() const
+bool SoftwareRenderer::SaveBufferToImage() const
 {
 	return SDL_SaveBMP(m_pBackBuffer, "Rasterizer_ColorBuffer.bmp");
 }

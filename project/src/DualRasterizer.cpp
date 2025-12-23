@@ -1,6 +1,7 @@
 // Project Includes
 #include "DualRasterizer.h"
 #include "DirectXRenderer.h"
+#include "SoftwareRenderer.h"
 
 #include "Utils.h"
 
@@ -60,7 +61,7 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 	InitDirectX();
 
 	// Software Initialization
-	//m_pSoftware = new SoftwareRenderer(pWindow);
+	m_pSoftware = new SoftwareRenderer(pWindow);
 	InitSoftware();
 }
 
