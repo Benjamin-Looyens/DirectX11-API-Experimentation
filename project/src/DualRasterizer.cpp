@@ -91,19 +91,15 @@ void dae::DualRasterizer::Update(const Timer* pTimer)
 	}
 
 	// Update Current Renderer
-	//if (m_UseSoftware) m_pSoftware->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
-	//else m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
-	
-	m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
+	if (m_UseSoftware) m_pSoftware->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
+	else m_pDirectX->Update(pTimer, m_Camera, m_SolidMeshes, m_AlphaMeshes, m_Settings);
 }
 
 void dae::DualRasterizer::Render() const
 {
-	// TODO : Implement DirectX & Software as classes
-	//if (m_UseSoftware) m_pSoftware->Render(m_Settings, m_Camera, m_Meshes);
-	//else m_pDirectX->Render(m_Settings, m_Camera, m_Meshes);
-
-	m_pDirectX->Render(m_SolidMeshes, m_AlphaMeshes, m_Settings);
+	// Render Current Renderer
+	if (m_UseSoftware) m_pSoftware->Render(m_SolidMeshes, m_AlphaMeshes, m_Settings);
+	else m_pDirectX->Render(m_SolidMeshes, m_AlphaMeshes, m_Settings);
 }
 
 void dae::DualRasterizer::ToggleRotation()
