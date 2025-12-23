@@ -276,11 +276,16 @@ void dae::DualRasterizer::CycleRenderer()
 	{
 	case true:
 		std::cout << "SOFTWARE\n";
+		// HACK : Should just fix the camera rotation...
+		m_Camera.rotSpeed = m_SOFTWARE_CAM_SPEED;
 		break;
 	case false:
 		std::cout << "DIRECT X\n";
+		// HACK : Should just fix the camera rotation...
+		m_Camera.rotSpeed = m_HARDWARE_CAM_SPEED;
 		break;
 	}
+
 }
 
 void dae::DualRasterizer::InitDirectX()

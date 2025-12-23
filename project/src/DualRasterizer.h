@@ -79,5 +79,8 @@ namespace dae {
 		// Dual Exclusive Members
 		float m_RotTimer{};
 		bool m_UseSoftware{ false };
+
+		const float m_SOFTWARE_CAM_SPEED{ 0.6f };
+		const float m_HARDWARE_CAM_SPEED{ 7.5f };
 	};
 }
