@@ -19,13 +19,16 @@
 namespace dae
 {
 	Texture::Texture(SDL_Surface* pSurface)
-		: m_pSurface{ pSurface }, m_pSurfacePixels{ (uint32_t*)pSurface }
+		: m_pSurface{ pSurface }, m_pSurfacePixels{ (uint32_t*)pSurface->pixels }
 	{}
 
 	Texture::~Texture()
 	{
 		// SDL
-		if (m_pSurface) SDL_FreeSurface(m_pSurface);
+		if (m_pSurface) {
+			SDL_FreeSurface(m_pSurface);
+			m_pSurface = nullptr;
+		}
 
 		// DirectX
 		if (m_HasInitializedDirectX) {
