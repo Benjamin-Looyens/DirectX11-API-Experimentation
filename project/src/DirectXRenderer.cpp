@@ -40,28 +40,32 @@ DXRenderer::DXRenderer(SDL_Window* pWindow) :
 
 DXRenderer::~DXRenderer()
 {
+	if (m_pDeviceContext) {
+		m_pDeviceContext->ClearState();
+		m_pDeviceContext->Flush();
+	}
+
 	// Release in reverse order
 	if (m_pNoCull) m_pNoCull->Release();
 	if (m_pFrontCull) m_pFrontCull->Release();
 	if (m_pBackCull) m_pBackCull->Release();
+
 	if (m_pRenderTargetView) m_pRenderTargetView->Release();
 	if (m_pRenderTargetBuffer) m_pRenderTargetBuffer->Release();
+
 	if (m_pDepthStencilView) m_pDepthStencilView->Release();
 	if (m_pDepthStencilBuffer) m_pDepthStencilBuffer->Release();
+
 	if (m_pSwapChain) m_pSwapChain->Release();
+
+	if (m_pDeviceContext) m_pDeviceContext->Release();
 
 #if defined(DEBUG) || defined(_DEBUG)
 	ID3D11Debug* pDebug = nullptr;
 	m_pDevice->QueryInterface(__uuidof(ID3D11Debug), (void**)&pDebug);
-	pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	pDebug->ReportLiveDeviceObjects(D3D11_RLDO_IGNORE_INTERNAL);
 	pDebug->Release();
 #endif
-
-	if (m_pDeviceContext) {
-		m_pDeviceContext->ClearState();
-		m_pDeviceContext->Flush();
-		m_pDeviceContext->Release();
-	}
 
 	if (m_pDevice) m_pDevice->Release();
 }

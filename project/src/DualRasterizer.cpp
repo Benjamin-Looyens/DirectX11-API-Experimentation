@@ -66,11 +66,14 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 
 dae::DualRasterizer::~DualRasterizer()
 {
-	delete m_pDirectX;
-	delete m_pSoftware;
-
+	m_AlphaMeshes.clear();
+	m_SolidMeshes.clear();
+	
 	for (Texture* pTexture : m_pTextures)
 		delete pTexture;
+
+	delete m_pDirectX;
+	delete m_pSoftware;
 }
 
 void dae::DualRasterizer::Update(const Timer* pTimer)
