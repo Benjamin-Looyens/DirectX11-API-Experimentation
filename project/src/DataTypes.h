@@ -6,6 +6,7 @@
 #include "Vector4.h"
 #include "Matrix.h"
 #include "ColorRGB.h"
+#include "Texture.h"
 
 // Basic Data Types
 struct Vertex
@@ -15,6 +16,41 @@ struct Vertex
 	dae::ColorRGB color{};
 	dae::Vector3 normal{};
 	dae::Vector3 tangent{};
+};
+
+struct Vertex_Out
+{
+	dae::Vector4 pos{};
+	dae::Vector2 uv{};
+	dae::ColorRGB color{};
+	dae::Vector3 normal{};
+	dae::Vector3 tangent{};
+	dae::Vector3 viewDir{};
+};
+
+struct InterpolationData
+{
+	InterpolationData(const dae::Vector4& _pos0, const dae::Vector4& _pos1, const dae::Vector4& _pos2, const float& _w0, const float& _w1, const float& _w2, const float& _zDepth, const float& _wDepth)
+		: pos0{ _pos0 }, pos1{ _pos1 }, pos2{ _pos2 }, w0{ _w0 }, w1{ _w1 }, w2{ _w2 }, zDepth{ _zDepth }, wDepth{ _wDepth }
+	{};
+
+	const dae::Vector4& pos0;
+	const dae::Vector4& pos1;
+	const dae::Vector4& pos2;
+
+	const float& w0;
+	const float& w1;
+	const float& w2;
+
+	const float& zDepth;
+	const float& wDepth;
+};
+
+struct TextureData {
+	dae::Texture* pDiffuse;
+	dae::Texture* pNormal;
+	dae::Texture* pSpecular;
+	dae::Texture* pGloss;
 };
 
 // Enums
@@ -44,6 +80,18 @@ enum class CullMode : uint8_t
 	NONE,
 
 	MODE_COUNT
+};
+
+enum class PrimitiveTopology : uint8_t
+{
+	TriangleList,
+	TriangleStrip
+};
+
+enum class VertexRenderMode : uint8_t
+{
+	COLORS,
+	TEXTURES
 };
 
 // Classes
