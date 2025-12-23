@@ -30,8 +30,7 @@ namespace dae
 		template<typename T>
 		T VertexInterpolate(const T& val0, const T& val1, const T& val2, const InterpolationData& data)
 		{
-			return
-				(((val0 / data.pos0.w) * data.w0) +
+			return (((val0 / data.pos0.w) * data.w0) +
 					((val1 / data.pos1.w) * data.w1) +
 					((val2 / data.pos2.w) * data.w2)) * data.wDepth;
 		}

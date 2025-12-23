@@ -104,7 +104,7 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 				for (uint32_t py{ minY }; py < maxY; ++py) {
 					const int pixelIndex = px + (py * m_Width);
 
-					if (m_DoBoundsRender) {
+					if (settings.doBBoxVisual) {
 						if ((px == minX || py == minY) ||
 							(px == maxX - 1 || py == maxY - 1)) {
 							ColorRGB finalColor = (v0.color + v1.color + v2.color) / 3; // Average
@@ -141,7 +141,7 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 							m_pDepthBuffer[pixelIndex] = zDepth;
 
 							ColorRGB finalColor{ Utils::Remap(zDepth, 0.9f, 1.0f, 0.0f, 1.0f) };
-							if (m_DoDepthRender) {
+							if (settings.doDepthVisual) {
 								UpdateColor(pixelIndex, finalColor);
 								continue;
 							}
@@ -183,7 +183,7 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 								continue;
 							}
 
-							if (Utils::PixelShade(interpolated, mesh.GetTextures(), settings.lightingMode, mesh.GetVertMode(), -lightDir.Normalized(), m_UseNormalMap, finalColor)) {
+							if (Utils::PixelShade(interpolated, mesh.GetTextures(), settings.lightingMode, mesh.GetVertMode(), -lightDir.Normalized(), settings.doNormalMap, finalColor)) {
 								UpdateColor(pixelIndex, finalColor);
 							}
 							
