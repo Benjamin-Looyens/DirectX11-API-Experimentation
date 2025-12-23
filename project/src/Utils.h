@@ -8,6 +8,39 @@ namespace dae
 {
 	namespace Utils
 	{
+		// Frustum Check for each Vertex
+		bool FrustumCheck(const Vector4& v0, const Vector4& v1, const Vector4& v2);
+
+		// Apply Resolution onto NDC Coordinates
+		inline Vector4 ApplyResolution(const Vector4& ndc, const int width, const int height)
+		{
+			return { ((ndc.x + 1.0f) / 2.0f) * width,
+					 ((1.0f - ndc.y) / 2.0f) * height,
+					 ndc.z, ndc.w
+			};
+		}
+
+		// Remap the input float to output range
+		inline float Remap(float value, float inMin, float inMax, float outMin, float outMax)
+		{
+			return outMin + ((value - inMin) * (outMax - outMin)) / (inMax - inMin);
+		}
+
+		// Template Interpolation
+		template<typename T>
+		T VertexInterpolate(const T& val0, const T& val1, const T& val2, const InterpolationData& data)
+		{
+			return
+				(((val0 / data.pos0.w) * data.w0) +
+					((val1 / data.pos1.w) * data.w1) +
+					((val2 / data.pos2.w) * data.w2)) * data.wDepth;
+		}
+
+		// Function for Shading a Pixel
+		// Will return false if "wrong" data was inputted or if out of bounds
+		// Stores RGB data for pixel within color_OUT
+		bool PixelShade(const Vertex_Out& vert, const TextureData& meshTexture, const LightingMode& lightMode, const VertexRenderMode& vertMode, const Vector3& lightDir, bool useNormalMap, ColorRGB& color_OUT);
+
 		//Just parses vertices and indices
 #pragma warning(push)
 #pragma warning(disable : 4505) //Warning unreferenced local function

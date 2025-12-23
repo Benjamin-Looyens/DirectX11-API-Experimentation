@@ -11,6 +11,7 @@ set(SOURCES
     "src/Mesh.cpp"
     "src/Effect.cpp"
     "src/Texture.cpp"
+    "src/Utils.cpp"
     "src/DualRasterizer.cpp"
 )
 
