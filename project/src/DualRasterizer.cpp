@@ -337,4 +337,11 @@ void dae::DualRasterizer::InitDirectX()
 
 void dae::DualRasterizer::InitSoftware()
 {
+	// HACK : Temporarily accessing by index (NEED TO FIX!!)
+	dae::Texture* pDiffuse = m_pSolidTextures[0];
+	dae::Texture* pNormal = m_pSolidTextures[1];
+	dae::Texture* pSpecular = m_pSolidTextures[2];
+	dae::Texture* pGloss = m_pSolidTextures[3];
+
+	m_SolidMeshes[0].SetTextures(TextureData{ pDiffuse, pNormal, pSpecular, pGloss });
 }

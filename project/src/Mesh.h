@@ -41,6 +41,7 @@ public:
 	const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
 	const std::vector<Vertex_Out>& GetVertsOut() const { return m_VerticesOut; }
 
+	void SetTextures(const TextureData& newData) { m_Textures = newData; };
 	const TextureData& GetTextures() const { return m_Textures; };
 
 	PrimitiveTopology GetTopology() const { return m_PrimTop; }
