@@ -27,8 +27,8 @@ void PrintInputs()
 {
 	std::cout <<
 		"**************** INPUTS ****************\n" <<
-		"**************** SHARED ****************\n" <<
 		"H   - Print Input Mappings\n" <<
+		"**************** SHARED ****************\n" <<
 		"F1  - Switch Between DirectX & Software\n" <<
 		"F2  - Toggle Mesh Rotation\n" <<
 		"F9  - Cycle Between Cull Modes\n" <<

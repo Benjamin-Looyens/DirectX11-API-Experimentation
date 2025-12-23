@@ -275,6 +275,7 @@ void dae::DualRasterizer::CycleRenderer()
 {
 	m_UseSoftware = !m_UseSoftware;
 
+	std::cout << "[SHARED] Current Renderer = ";
 	switch (m_UseSoftware)
 	{
 	case true:
