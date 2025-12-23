@@ -285,7 +285,6 @@ void dae::DualRasterizer::CycleRenderer()
 		m_Camera.rotSpeed = m_HARDWARE_CAM_SPEED;
 		break;
 	}
-
 }
 
 void dae::DualRasterizer::InitDirectX()

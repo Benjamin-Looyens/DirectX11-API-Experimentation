@@ -177,12 +177,6 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 							constexpr float LIGHT_VALUE = 0.577f;
 							const Vector3 lightDir{ LIGHT_VALUE, -LIGHT_VALUE, LIGHT_VALUE };
 
-							if (m_DoWireFrameRender && (w0 < 0.025f || w1 < 0.025f || w2 < 0.025f)) {
-								finalColor = colors::Gray;
-								UpdateColor(pixelIndex, finalColor);
-								continue;
-							}
-
 							if (Utils::PixelShade(interpolated, mesh.GetTextures(), settings.lightingMode, mesh.GetVertMode(), -lightDir.Normalized(), settings.doNormalMap, finalColor)) {
 								UpdateColor(pixelIndex, finalColor);
 							}
@@ -227,110 +221,6 @@ void SoftwareRenderer::VertexTransformationFunction(const Matrix& worldMat, cons
 			};
 		}
 	);
-}
-
-void dae::SoftwareRenderer::ToggleBoundsRender()
-{
-	m_DoBoundsRender = !m_DoBoundsRender;
-
-	std::cout << "BoundingBox Rendering = ";
-	switch (m_DoBoundsRender)
-	{
-	case true:
-		std::cout << "ON\n";
-		break;
-	case false:
-		std::cout << "OFF\n";
-		break;
-	}
-}
-
-void dae::SoftwareRenderer::ToggleWireFrameRender()
-{
-	m_DoWireFrameRender = !m_DoWireFrameRender;
-
-	std::cout << "Wire Frame Rendering = ";
-	switch (m_DoWireFrameRender)
-	{
-	case true:
-		std::cout << "ON\n";
-		break;
-	case false:
-		std::cout << "OFF\n";
-		break;
-	}
-}
-
-void dae::SoftwareRenderer::ToggleDepthRender()
-{
-	m_DoDepthRender = !m_DoDepthRender;
-
-	std::cout << "Depth Buffer Rendering = ";
-	switch (m_DoDepthRender)
-	{
-	case true:
-		std::cout << "ON\n";
-		break;
-	case false:
-		std::cout << "OFF\n";
-		break;
-	}
-}
-
-void dae::SoftwareRenderer::ToggleRotation()
-{
-	m_DoRotation = !m_DoRotation;
-
-	std::cout << "Mesh Rotation = ";
-	switch (m_DoRotation)
-	{
-	case true:
-		std::cout << "ON\n";
-		break;
-	case false:
-		std::cout << "OFF\n";
-		break;
-	}
-}
-
-void dae::SoftwareRenderer::ToggleNormalMap()
-{
-	m_UseNormalMap = !m_UseNormalMap;
-
-	std::cout << "Normal Map Sampling = ";
-	switch (m_UseNormalMap)
-	{
-	case true:
-		std::cout << "ON\n";
-		break;
-	case false:
-		std::cout << "OFF\n";
-		break;
-	}
-}
-
-void dae::SoftwareRenderer::CycleLightingMode()
-{
-	// Yuck
-	m_CurMode = static_cast<LightingMode>((static_cast<uint8_t>(m_CurMode) + 1) % static_cast<uint8_t>(LightingMode::ModeAmount)); 
-
-	// Yuck part 2
-	std::cout << "Rendering Mode = ";
-	switch (m_CurMode)
-	{
-	case SoftwareRenderer::LightingMode::ObservedArea:
-		std::cout << "OBSERVED AREA\n";
-		break;
-	case SoftwareRenderer::LightingMode::Diffuse:
-		std::cout << "LAMBERT DIFFUSE\n";
-		break;
-	case SoftwareRenderer::LightingMode::Specular:
-		std::cout << "PHONG SPECULAR\n";
-		break;
-	case SoftwareRenderer::LightingMode::Combined:
-		std::cout << "COMBINED\n";
-		break;
-	}
 }
 
 void dae::SoftwareRenderer::UpdateColor(const uint32_t& index, ColorRGB& col)
