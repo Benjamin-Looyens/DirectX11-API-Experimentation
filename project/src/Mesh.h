@@ -1,7 +1,8 @@
 #pragma once
 
 // External Includes
-#include <winnt.h>
+#define NOMINMAX // Necessary for not causing std::min and std::max conflicts
+#include <Windows.h> // For HRESULT
 
 // Standard Includes
 #include <string>
@@ -13,6 +14,7 @@
 // Forward Declarations
 struct ID3D11Device;
 struct ID3D11Buffer;
+struct ID3D11DeviceContext;
 
 class Effect;
 
@@ -34,9 +36,26 @@ public:
 	Effect* GetEffect() { return m_pEffect; }
 	void Render(ID3D11DeviceContext* pDeviceContext) const; // Really hate that its not const ref
 
+	// Software 
+	const std::vector<Vertex>& GetVertices() const { return m_Vertices; }
+	const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
+	const std::vector<Vertex_Out>& GetVertsOut() const { return m_VerticesOut; }
+
+	const TextureData& GetTextures() const { return m_Textures; };
+
+	PrimitiveTopology GetTopology() const { return m_PrimTop; }
+	VertexRenderMode GetVertMode() const { return m_VertMode; }
+
+	std::vector<Vertex_Out>& GetMutableVertsOut() { return m_VerticesOut; } // **MUTABLE** Vertices Out
+
 private:
 	// Software / SDL
+	TextureData m_Textures{};
+	PrimitiveTopology m_PrimTop{ PrimitiveTopology::TriangleList }; // TODO : Able to set this somewhere
+	VertexRenderMode m_VertMode{ VertexRenderMode::TEXTURES }; // TODO : Able to set this somewhere
+
 	std::vector<Vertex> m_Vertices;
+	std::vector<Vertex_Out> m_VerticesOut;
 	std::vector<uint32_t> m_Indices;
 
 	// Direct X
