@@ -4,6 +4,7 @@
 #include "Vector3.h"
 #include "Vector4.h"
 #include "MathHelpers.h"
+#include "ColorRGB.h"
 
 namespace dae {
 	const Vector3 Vector3::UnitX = Vector3{ 1, 0, 0 };
@@ -14,6 +15,9 @@ namespace dae {
 	Vector3::Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 
 	Vector3::Vector3(const Vector4& v) : x(v.x), y(v.y), z(v.z) {}
+
+	Vector3::Vector3(const ColorRGB& col) : x{ col.r }, y{ col.g }, z{ col.b }
+	{}
 
 	Vector3::Vector3(const Vector3& from, const Vector3& to) : x(to.x - from.x), y(to.y - from.y), z(to.z - from.z) {}
 
@@ -57,6 +61,21 @@ namespace dae {
 		};
 	}
 
+	float Vector3::CrossX(const Vector3& v1, const Vector3& v2)
+	{
+		return v1.y * v2.z - v1.z * v2.y;
+	}
+
+	float Vector3::CrossY(const Vector3& v1, const Vector3& v2)
+	{
+		return v1.z * v2.x - v1.x * v2.z;
+	}
+
+	float Vector3::CrossZ(const Vector3& v1, const Vector3& v2)
+	{
+		return v1.x * v2.y - v1.y * v2.x;
+	}
+
 	Vector3 Vector3::Project(const Vector3& v1, const Vector3& v2)
 	{
 		return (v2 * (Dot(v1, v2) / Dot(v2, v2)));
@@ -70,6 +89,11 @@ namespace dae {
 	Vector3 Vector3::Reflect(const Vector3& v1, const Vector3& v2)
 	{
 		return v1 - (2.f * Vector3::Dot(v1, v2) * v2);
+	}
+
+	ColorRGB Vector3::ToColor() const
+	{
+		return { x, y, z };
 	}
 
 	Vector4 Vector3::ToPoint4() const
