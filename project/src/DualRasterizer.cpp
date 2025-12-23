@@ -294,22 +294,22 @@ void dae::DualRasterizer::InitDirectX()
 	HRESULT result;
 	for (Texture* pTexture : m_pSolidTextures) {
 		result = pTexture->InitDirectX(pDevice);
-		if (FAILED(result)); // TODO : Do something if failed
+		if (FAILED(result)) assert(false && "Solid Texture DX Initialization Failed!");
 	}
 
 	for (Texture* pTexture : m_pAlphaTextures) {
 		result = pTexture->InitDirectX(pDevice);
-		if (FAILED(result)); // TODO : Do something if failed
+		if (FAILED(result)) assert(false && "Alpha Texture DX Initialization Failed!");
 	}
 
 	for (Mesh& mesh : m_SolidMeshes) {
 		result = mesh.InitDirectX(pDevice);
-		if (FAILED(result)); // TODO : Do something if failed
+		if (FAILED(result)) assert(false && "Solid Mesh DX Initialization Failed!");
 	}
 
 	for (Mesh& mesh : m_AlphaMeshes) {
 		result = mesh.InitDirectX(pDevice);
-		if (FAILED(result)); // TODO : Do something if failed
+		if (FAILED(result)) assert(false && "Alpha Mesh DX Initialization Failed!");
 	}
 
 	// Create & Add Effects
