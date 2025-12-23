@@ -1,8 +1,15 @@
 #pragma once
+
+// External Includes
+#define NOMINMAX // Necessary for not causing std::min and std::max conflicts
+#include <Windows.h> // For HRESULT
 #include <SDL_surface.h>
+
+// Standard Includes
 #include <string>
+
+// Project Includes
 #include "ColorRGB.h"
-#include <winnt.h> // For HRESULT
 
 // Forward Declarations
 struct ID3D11Texture2D;
@@ -21,10 +28,9 @@ namespace dae
 		static Texture* LoadFromFile(const std::string& path);
 
 		HRESULT InitDirectX(ID3D11Device* pDevice);
-
-		// TODO : Add SDL sample for software
-
 		ID3D11ShaderResourceView* GetSurfaceView() const { return m_pResourceView; };
+
+		ColorRGB SoftwareSample(const Vector2& uv) const;
 
 	private:
 		Texture(SDL_Surface* pSurface);
