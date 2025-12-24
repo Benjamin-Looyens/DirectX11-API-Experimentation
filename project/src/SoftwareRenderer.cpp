@@ -96,15 +96,14 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 
 			// Area Check (Face Culling)
 			const float area = Vector3::CrossZ(v1Pos - v0Pos, v2Pos - v0Pos);
-			float faceSign{ 1.0f };
+			const bool isBackFace = area < 0.0f;
+			const float faceSign = isBackFace ? -1.0f : 1.0f;
 			switch (settings.cullMode) {
 			case CullMode::BACK_FACE:
-				if (area < 0) continue;
-				faceSign = 1.0f;
+				if (isBackFace) continue;
 				break;
 			case CullMode::FRONT_FACE:
-				if (area > 0) continue;
-				faceSign = -1.0f;
+				if (!isBackFace) continue;
 				break;
 			}
 
