@@ -44,8 +44,12 @@ void SoftwareRenderer::Update(const Timer* pTimer, dae::Camera& cam, std::vector
 
 void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings)
 {
+	UINT8 R = static_cast<UINT8>(settings.uniformBackGround.r * 255.0f);
+	UINT8 G = static_cast<UINT8>(settings.uniformBackGround.g * 255.0f);
+	UINT8 B = static_cast<UINT8>(settings.uniformBackGround.b * 255.0f);
+
 	// Clear BackBuffer
-	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, 75, 75, 75));
+	SDL_FillRect(m_pBackBuffer, nullptr, SDL_MapRGB(m_pBackBuffer->format, R, G, B));
 
 	// Lock BackBuffer
 	SDL_LockSurface(m_pBackBuffer);
