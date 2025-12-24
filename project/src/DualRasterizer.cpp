@@ -30,21 +30,23 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 	std::string vehicleGlossPath{ "resources/vehicle_gloss.png" };
 	std::string fireDiffusePath{ "resources/fireFX_diffuse.png" };
 
-	dae::Texture* pDiffuse =		dae::Texture::LoadFromFile(vehicleDiffusePath);
-	dae::Texture* pNormal =			dae::Texture::LoadFromFile(vehicleNormalPath);
-	dae::Texture* pSpecular =		dae::Texture::LoadFromFile(vehicleSpecularPath);
-	dae::Texture* pGloss =			dae::Texture::LoadFromFile(vehicleGlossPath);
-	dae::Texture* pDiffuseFire =	dae::Texture::LoadFromFile(fireDiffusePath);
+	// Solid textures
+	dae::Texture* pDiffuse =	dae::Texture::LoadFromFile(vehicleDiffusePath);
+	dae::Texture* pNormal =		dae::Texture::LoadFromFile(vehicleNormalPath);
+	dae::Texture* pSpecular =	dae::Texture::LoadFromFile(vehicleSpecularPath);
+	dae::Texture* pGloss =		dae::Texture::LoadFromFile(vehicleGlossPath);
 
 	m_pSolidTextures.push_back(pDiffuse);
 	m_pSolidTextures.push_back(pNormal);
 	m_pSolidTextures.push_back(pSpecular);
 	m_pSolidTextures.push_back(pGloss);
 
+	// Alpha Textures
+	dae::Texture* pDiffuseFire = dae::Texture::LoadFromFile(fireDiffusePath);
+
 	m_pAlphaTextures.push_back(pDiffuseFire);
 
 	// Mesh Initialization
-	// TODO : Store the vertices & indices within the mesh (need for software rasterizer)
 	std::vector<Vertex> vehicleVerts{};
 	std::vector<uint32_t> vehicleIndices{};
 	Utils::ParseOBJ("resources/vehicle.obj", vehicleVerts, vehicleIndices);
@@ -337,11 +339,13 @@ void dae::DualRasterizer::InitDirectX()
 
 void dae::DualRasterizer::InitSoftware()
 {
-	// HACK : Temporarily accessing by index (NEED TO FIX!!)
-	dae::Texture* pDiffuse = m_pSolidTextures[0];
-	dae::Texture* pNormal = m_pSolidTextures[1];
-	dae::Texture* pSpecular = m_pSolidTextures[2];
-	dae::Texture* pGloss = m_pSolidTextures[3];
+	// Loop over each Mesh + Texture Pairings
+	for (size_t index{}; index < m_SolidMeshes.size(); index++) {
+		dae::Texture* pDiffuse =	m_pSolidTextures[0 + index];
+		dae::Texture* pNormal =		m_pSolidTextures[1 + index];
+		dae::Texture* pSpecular =	m_pSolidTextures[2 + index];
+		dae::Texture* pGloss =		m_pSolidTextures[3 + index];
 
-	m_SolidMeshes[0].SetTextures(TextureData{ pDiffuse, pNormal, pSpecular, pGloss });
+		m_SolidMeshes[index].SetTextures(TextureData{ pDiffuse, pNormal, pSpecular, pGloss });
+	}
 }
