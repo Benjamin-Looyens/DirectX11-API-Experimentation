@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "Utils.h"
 #include "DataTypes.h"
+#include "Mesh.h"
 
 // Standard includes
 #include <limits>
@@ -34,7 +35,7 @@ SoftwareRenderer::~SoftwareRenderer()
 	delete[] m_pDepthBuffer;
 }
 
-void SoftwareRenderer::Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings)
+void SoftwareRenderer::Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, RenderSettings& settings)
 {
 	// Enter [Projection Stage]
 	for (Mesh& mesh : solidMeshes) {
@@ -42,7 +43,7 @@ void SoftwareRenderer::Update(const Timer* pTimer, dae::Camera& cam, std::vector
 	}
 }
 
-void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings)
+void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const RenderSettings& settings)
 {
 	UINT8 R, G, B;
 

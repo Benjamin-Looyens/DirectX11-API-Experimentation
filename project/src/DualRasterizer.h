@@ -19,15 +19,15 @@
 #include "Mesh.h"
 
 // Forward Declarations
-class Effect;
-class SolidEffect;
-class AlphaEffect;
-
 namespace dae {
 	class SoftwareRenderer;
 	class DXRenderer;
 	class Timer;
 	class Texture;
+
+	class Effect;
+	class SolidEffect;
+	class AlphaEffect;
 
 	class DualRasterizer final
 	{
@@ -74,11 +74,7 @@ namespace dae {
 
 		// Common Members
 		Camera m_Camera;
-		::RenderSettings m_Settings{}; // HACK : WHY DO I NEED TO SPECIFY IT IS IN GLOBAL NAMESPACE ??????????????????????? (also in DirectX Renderer)
-
-		// Idea for better organization:
-		// Maybe have Object class, which stores several SolidMeshes, AlphaMeshes & Textures together with one Transform
-		// Object class then has 2 functions: RenderSolid() & RenderAlpha() which can be called seperately 
+		RenderSettings m_Settings{}; // HACK : WHY DO I NEED TO SPECIFY IT IS IN GLOBAL NAMESPACE ??????????????????????? (also in DirectX Renderer)
 
 		// Owned Data Vectors
 		std::vector<Mesh> m_SolidMeshes{}; 

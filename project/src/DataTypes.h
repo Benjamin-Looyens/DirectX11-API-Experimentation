@@ -8,94 +8,94 @@
 #include "ColorRGB.h"
 #include "Texture.h"
 
-// Basic Data Types
-struct Vertex
-{
-	dae::Vector3 pos{};
-	dae::Vector2 uv{};
-	dae::ColorRGB color{ dae::colors::White };
-	dae::Vector3 normal{};
-	dae::Vector3 tangent{};
-};
-
-struct Vertex_Out
-{
-	dae::Vector4 pos{};
-	dae::Vector2 uv{};
-	dae::ColorRGB color{};
-	dae::Vector3 normal{};
-	dae::Vector3 tangent{};
-	dae::Vector3 viewDir{};
-};
-
-struct InterpolationData
-{
-	InterpolationData(const dae::Vector4& _pos0, const dae::Vector4& _pos1, const dae::Vector4& _pos2, const float& _w0, const float& _w1, const float& _w2, const float& _zDepth, const float& _wDepth)
-		: pos0{ _pos0 }, pos1{ _pos1 }, pos2{ _pos2 }, w0{ _w0 }, w1{ _w1 }, w2{ _w2 }, zDepth{ _zDepth }, wDepth{ _wDepth }
-	{};
-
-	const dae::Vector4& pos0;
-	const dae::Vector4& pos1;
-	const dae::Vector4& pos2;
-
-	const float& w0;
-	const float& w1;
-	const float& w2;
-
-	const float& zDepth;
-	const float& wDepth;
-};
-
-struct TextureData {
-	dae::Texture* pDiffuse;
-	dae::Texture* pNormal;
-	dae::Texture* pSpecular;
-	dae::Texture* pGloss;
-};
-
-// Enums
-enum class SampleTechnique : uint8_t
-{
-	POINT,
-	LINEAR,
-	ANISOTROPIC,
-
-	TECHNIQUE_COUNT
-};
-
-enum class LightingMode : uint8_t
-{
-	OBSERVED_AREA,
-	DIFFUSE,
-	SPECULAR,
-	COMBINED,
-
-	MODE_COUNT
-};
-
-enum class CullMode : uint8_t
-{
-	BACK_FACE,
-	FRONT_FACE,
-	NONE,
-
-	MODE_COUNT
-};
-
-enum class PrimitiveTopology : uint8_t
-{
-	TriangleList,
-	TriangleStrip
-};
-
-enum class VertexRenderMode : uint8_t
-{
-	COLORS,
-	TEXTURES
-};
-
-// Classes
 namespace dae {
+	// Basic Data Types
+	struct Vertex
+	{
+		Vector3 pos{};
+		Vector2 uv{};
+		ColorRGB color{ dae::colors::White };
+		Vector3 normal{};
+		Vector3 tangent{};
+	};
+
+	struct Vertex_Out
+	{
+		Vector4 pos{};
+		Vector2 uv{};
+		ColorRGB color{};
+		Vector3 normal{};
+		Vector3 tangent{};
+		Vector3 viewDir{};
+	};
+
+	struct InterpolationData
+	{
+		InterpolationData(const Vector4& _pos0, const Vector4& _pos1, const Vector4& _pos2, const float& _w0, const float& _w1, const float& _w2, const float& _zDepth, const float& _wDepth)
+			: pos0{ _pos0 }, pos1{ _pos1 }, pos2{ _pos2 }, w0{ _w0 }, w1{ _w1 }, w2{ _w2 }, zDepth{ _zDepth }, wDepth{ _wDepth }
+		{};
+
+		const Vector4& pos0;
+		const Vector4& pos1;
+		const Vector4& pos2;
+
+		const float& w0;
+		const float& w1;
+		const float& w2;
+
+		const float& zDepth;
+		const float& wDepth;
+	};
+
+	struct TextureData {
+		Texture* pDiffuse;
+		Texture* pNormal;
+		Texture* pSpecular;
+		Texture* pGloss;
+	};
+
+	// Enums
+	enum class SampleTechnique : uint8_t
+	{
+		POINT,
+		LINEAR,
+		ANISOTROPIC,
+
+		TECHNIQUE_COUNT
+	};
+
+	enum class LightingMode : uint8_t
+	{
+		OBSERVED_AREA,
+		DIFFUSE,
+		SPECULAR,
+		COMBINED,
+
+		MODE_COUNT
+	};
+
+	enum class CullMode : uint8_t
+	{
+		BACK_FACE,
+		FRONT_FACE,
+		NONE,
+
+		MODE_COUNT
+	};
+
+	enum class PrimitiveTopology : uint8_t
+	{
+		TriangleList,
+		TriangleStrip
+	};
+
+	enum class VertexRenderMode : uint8_t
+	{
+		COLORS,
+		TEXTURES
+	};
+
+	// Classes
 	class Transform final
 	{
 	public:
@@ -163,25 +163,25 @@ namespace dae {
 
 		bool m_FullDirty{};
 	};
+
+	// Config Types
+	struct RenderSettings
+	{
+		// Shared
+		bool doRotation{ false };
+		bool doUniformBackGround{ false };
+		ColorRGB uniformBackGround{ 0.1f };
+		CullMode cullMode{ CullMode::BACK_FACE };
+		Transform transform{};
+	
+		// Hardware
+		bool doFireRender{ true };
+		SampleTechnique texSamplingTechnique{ SampleTechnique::POINT };
+	
+		// Software
+		LightingMode lightingMode{ LightingMode::COMBINED };
+		bool doNormalMap{ true };
+		bool doDepthVisual{ false };
+		bool doBBoxVisual{ false };
+	};
 }
-
-// Config Types
-struct RenderSettings
-{
-	// Shared
-	bool doRotation{ false };
-	bool doUniformBackGround{ false };
-	dae::ColorRGB uniformBackGround{ 0.1f };
-	CullMode cullMode{ CullMode::BACK_FACE };
-	dae::Transform transform{};
-
-	// Hardware
-	bool doFireRender{ true };
-	SampleTechnique texSamplingTechnique{ SampleTechnique::POINT };
-
-	// Software
-	LightingMode lightingMode{ LightingMode::COMBINED };
-	bool doNormalMap{ true };
-	bool doDepthVisual{ false };
-	bool doBBoxVisual{ false };
-};

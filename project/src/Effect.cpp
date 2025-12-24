@@ -18,7 +18,7 @@
 #include "Texture.h"
 
 #pragma region EffectBase
-Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
+dae::Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 {
 	// Initialize Underlying DX11 Effect
 	m_pEffect = LoadEffect(pDevice, filePath);
@@ -56,7 +56,7 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& filePath)
 	}
 }
 
-Effect::~Effect()
+dae::Effect::~Effect()
 {
 	if (m_pInputLayout) m_pInputLayout->Release();
 	
@@ -72,13 +72,13 @@ Effect::~Effect()
 	if (m_pEffect) m_pEffect->Release();
 }
 
-void Effect::SetInputLayout(ID3D11InputLayout* pNewLayout)
+void dae::Effect::SetInputLayout(ID3D11InputLayout* pNewLayout)
 {
 	if (m_pInputLayout) m_pInputLayout->Release();
 	m_pInputLayout = pNewLayout;
 }
 
-void Effect::SetSampleState(SampleTechnique tech)
+void dae::Effect::SetSampleState(SampleTechnique tech)
 {
 	switch (tech)
 	{
@@ -94,7 +94,7 @@ void Effect::SetSampleState(SampleTechnique tech)
 	}
 }
 
-ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
+ID3DX11Effect* dae::Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath)
 {
 	HRESULT result;
 	ID3D10Blob* pErrorBlob{};
@@ -137,7 +137,7 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& fil
 #pragma endregion EffectBase
 
 #pragma region EffectSolid
-SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : Effect(pDevice, filePath)
+dae::SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : Effect(pDevice, filePath)
 {
 	// Initialize Vertex Layout Values
 	static constexpr uint32_t numElements{ 5 };
@@ -197,7 +197,7 @@ SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : 
 	}
 }
 
-SolidEffect::~SolidEffect()
+dae::SolidEffect::~SolidEffect()
 {
 	if (m_pWorldMatrix) m_pWorldMatrix->Release();
 	if (m_pCameraPos) m_pCameraPos->Release();
@@ -208,22 +208,22 @@ SolidEffect::~SolidEffect()
 	if (m_pDiffuseMap) m_pDiffuseMap->Release();
 }
 
-void SolidEffect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
+void dae::SolidEffect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
 {
 	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
 }
 
-void SolidEffect::SetNormalMap(dae::Texture* pNormalTexture)
+void dae::SolidEffect::SetNormalMap(dae::Texture* pNormalTexture)
 {
 	if (m_pNormalMap) m_pNormalMap->SetResource(pNormalTexture->GetSurfaceView());
 }
 
-void SolidEffect::SetSpecularMap(dae::Texture* pSpecularTexture)
+void dae::SolidEffect::SetSpecularMap(dae::Texture* pSpecularTexture)
 {
 	if (m_pSpecularMap) m_pSpecularMap->SetResource(pSpecularTexture->GetSurfaceView());
 }
 
-void SolidEffect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
+void dae::SolidEffect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
 {
 	if (m_pGlossMap) m_pGlossMap->SetResource(pGlossinessTexture->GetSurfaceView());
 }
@@ -231,7 +231,7 @@ void SolidEffect::SetGlossinessMap(dae::Texture* pGlossinessTexture)
 #pragma endregion EffectSolid
 
 #pragma region EffectAlpha
-AlphaEffect::AlphaEffect(ID3D11Device* pDevice, const std::wstring& filePath)
+dae::AlphaEffect::AlphaEffect(ID3D11Device* pDevice, const std::wstring& filePath)
 	: Effect(pDevice, filePath)
 {
 	// Initialize Vertex Layout Values
@@ -265,12 +265,12 @@ AlphaEffect::AlphaEffect(ID3D11Device* pDevice, const std::wstring& filePath)
 	}
 }
 
-AlphaEffect::~AlphaEffect()
+dae::AlphaEffect::~AlphaEffect()
 {
 	if (m_pDiffuseMap) m_pDiffuseMap->Release();
 }
 
-void AlphaEffect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
+void dae::AlphaEffect::SetDiffuseMap(dae::Texture* pDiffuseTexture)
 {
 	if (m_pDiffuseMap) m_pDiffuseMap->SetResource(pDiffuseTexture->GetSurfaceView());
 }

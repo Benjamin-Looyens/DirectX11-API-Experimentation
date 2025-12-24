@@ -4,13 +4,13 @@
 
 #include "Camera.h"
 #include "DataTypes.h"
-#include "Mesh.h"
 
 struct SDL_Window;
 struct SDL_Surface;
 
 namespace dae
-{
+{	
+	class Mesh;
 	class Timer;
 
 	class SoftwareRenderer final
@@ -24,8 +24,8 @@ namespace dae
 		SoftwareRenderer& operator=(const SoftwareRenderer&) = delete;
 		SoftwareRenderer& operator=(SoftwareRenderer&&) noexcept = delete;
 
-		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings);
-		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings);
+		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, RenderSettings& settings);
+		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const RenderSettings& settings);
 
 		bool SaveBufferToImage() const;
 

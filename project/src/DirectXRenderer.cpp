@@ -77,7 +77,7 @@ DXRenderer::~DXRenderer()
 	if (m_pDevice) m_pDevice->Release();
 }
 
-void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings)
+void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, RenderSettings& settings)
 {
 	if (!m_IsInitialized) return;
 
@@ -104,7 +104,7 @@ void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& sol
 	}
 }
 
-void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings) const
+void DXRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const RenderSettings& settings) const
 {
 	if (!m_IsInitialized) return;
 

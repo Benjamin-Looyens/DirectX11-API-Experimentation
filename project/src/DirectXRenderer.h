@@ -11,7 +11,6 @@
 #include "DataTypes.h"
 
 // Forward Declarations
-class Mesh;
 class Effect;
 class SolidEffect;
 class AlphaEffect;
@@ -26,6 +25,7 @@ struct ID3D11RenderTargetView;
 struct ID3D11RasterizerState;
 
 namespace dae {
+	class Mesh;
 	struct Camera;
 	struct RenderSettings;
 }
@@ -43,8 +43,8 @@ namespace dae
 		DXRenderer& operator=(const DXRenderer&) = delete;
 		DXRenderer& operator=(DXRenderer&&) noexcept = delete;
 
-		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings);
-		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const ::RenderSettings& settings) const;
+		void Update(const Timer* pTimer, dae::Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, RenderSettings& settings);
+		void Render(const std::vector<Mesh>& solidMeshes, const std::vector<Mesh>& alphaMeshes, const RenderSettings& settings) const;
 
 		ID3D11Device* GetDevice() const { return m_pDevice; };
 

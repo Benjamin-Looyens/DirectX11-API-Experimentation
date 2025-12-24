@@ -19,20 +19,20 @@
 #include "Effect.h"
 
 
-Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
+dae::Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 	: m_Vertices{ vertices }, m_Indices{ indices }
 {
 
 }
 
-Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) 
+dae::Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) 
 	: Mesh(vertices, indices)
 {
 	InitDirectX(pDevice);
 	SetEffect(pEffect);
 }
 
-Mesh::~Mesh()
+dae::Mesh::~Mesh()
 {
 	if (m_pEffect) delete m_pEffect;
 
@@ -40,7 +40,7 @@ Mesh::~Mesh()
 	if (m_pVertexBuffer) m_pVertexBuffer->Release();
 }
 
-HRESULT Mesh::InitDirectX(ID3D11Device* pDevice)
+HRESULT dae::Mesh::InitDirectX(ID3D11Device* pDevice)
 {
 	// Create Vertex Buffer
 	D3D11_BUFFER_DESC bufferDesc{};
@@ -70,7 +70,7 @@ HRESULT Mesh::InitDirectX(ID3D11Device* pDevice)
 	return result;
 }
 
-void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
+void dae::Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 {
 	// Set Primitive Topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -96,7 +96,7 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 	}
 }
 
-void Mesh::SetEffect(Effect* pNewEffect)
+void dae::Mesh::SetEffect(Effect* pNewEffect)
 {
 	if (m_pEffect) delete m_pEffect;
 	m_pEffect = pNewEffect;
