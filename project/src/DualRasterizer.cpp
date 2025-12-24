@@ -363,7 +363,7 @@ void dae::DualRasterizer::InitDirectX()
 	// Link Solid Meshes -> Effects
 	for (size_t index{}; index < m_SolidMeshes.size(); index++) {
 		auto& pCurEffect = m_pSolidEffects[index];
-		auto& pCurMesh = m_SolidMeshes[index];
+		auto& curMesh = m_SolidMeshes[index];
 
 		dae::Texture* pDiffuse =	m_pSolidTextures[0 + index];
 		dae::Texture* pNormal =		m_pSolidTextures[1 + index];
@@ -375,7 +375,7 @@ void dae::DualRasterizer::InitDirectX()
 		pCurEffect->SetSpecularMap(pSpecular);
 		pCurEffect->SetGlossinessMap(pGloss);
 
-		pCurMesh.SetEffect(pCurEffect);
+		curMesh.SetEffect(pCurEffect);
 	}
 
 	// Create & Add Alpha Effects
@@ -385,13 +385,13 @@ void dae::DualRasterizer::InitDirectX()
 	// Link Alpha Meshes -> Effects
 	for (size_t index{}; index < m_AlphaMeshes.size(); index++) {
 		auto& pCurEffect = m_pAlphaEffects[index];
-		auto& pCurMesh = m_AlphaMeshes[index];
+		auto& curMesh = m_AlphaMeshes[index];
 
 		dae::Texture* pDiffuse = m_pSolidTextures[index];
 
 		pCurEffect->SetDiffuseMap(m_pAlphaTextures[index]);
 
-		m_AlphaMeshes[index].SetEffect(pCurEffect);
+		curMesh.SetEffect(pCurEffect);
 	}
 }
 
