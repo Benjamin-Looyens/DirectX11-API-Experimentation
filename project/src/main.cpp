@@ -28,7 +28,9 @@ void PrintInputs()
 	std::cout <<
 		"**************** INPUTS ****************\n" <<
 		"H   - Print Input Mappings\n" <<
+		"O   - Toggle Console Output\n" <<
 		"**************** SHARED ****************\n" <<
+		"R   - Reset Camera Position & Rotation\n" <<
 		"F1  - Switch Between DirectX & Software\n" <<
 		"F2  - Toggle Mesh Rotation\n" <<
 		"F9  - Cycle Between Cull Modes\n" <<
@@ -97,6 +99,10 @@ int main(int argc, char* args[])
 			case SDL_KEYUP:
 				if (e.key.keysym.scancode == SDL_SCANCODE_H)
 					PrintInputs();
+				if (e.key.keysym.scancode == SDL_SCANCODE_O)
+					pRenderer->ToggleConsoleOut();
+				if (e.key.keysym.scancode == SDL_SCANCODE_R)
+					pRenderer->ResetCamera();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F1) // (Shared) Toggle between DirectX& Software Rasterizer(‘F1’)
 					pRenderer->CycleRenderer();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F2) // (Shared) Toggle Rotation(On / Off) (‘F2’)

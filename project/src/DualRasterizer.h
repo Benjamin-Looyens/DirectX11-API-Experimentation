@@ -53,11 +53,16 @@ namespace dae {
 		void ToggleDepthRender();
 		void ToggleBoundsRender();
 
+		void ToggleConsoleOut();
+
 		// Cycles
 		void CycleCullMode();
 		void CycleSampleTechnique();
 		void CycleLightingMode();
 		void CycleRenderer();
+
+		// Other Options
+		void ResetCamera();
 
 	private:
 		void InitDirectX();
@@ -87,9 +92,12 @@ namespace dae {
 
 		// Dual Exclusive Members
 		float m_RotTimer{};
+		
 		bool m_UseSoftware{ false };
+		bool m_DoConsoleOut{ true };
 
 		const float m_SOFTWARE_CAM_SPEED{ 0.6f };
 		const float m_HARDWARE_CAM_SPEED{ 7.5f };
+		const Vector3 m_CAMERA_START_POS{ 0.0f, 0.0f, -50.0f };
 	};
 }

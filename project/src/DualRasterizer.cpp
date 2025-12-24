@@ -21,7 +21,7 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 	SDL_GetWindowSize(pWindow, &width, &height);
 
 	// Camera Initialization
-	m_Camera.Initialize(width, height, 45.0f, { 0.0f, 0.0f, -50.0f });
+	m_Camera.Initialize(width, height, 45.0f, m_CAMERA_START_POS);
 
 	// Texture Initialization
 	std::string vehicleDiffusePath{ "resources/vehicle_diffuse.png" };
@@ -108,6 +108,8 @@ void dae::DualRasterizer::ToggleRotation()
 {
 	m_Settings.doRotation = !m_Settings.doRotation;
 
+	if (!m_DoConsoleOut) return;
+
 	std::cout << "[SHARED] Mesh Rotation = ";
 	switch (m_Settings.doRotation)
 	{
@@ -123,6 +125,8 @@ void dae::DualRasterizer::ToggleRotation()
 void dae::DualRasterizer::ToggleUniformClear()
 {
 	m_Settings.doUniformBackGround = !m_Settings.doUniformBackGround;
+
+	if (!m_DoConsoleOut) return;
 
 	std::cout << "[SHARED] Uniform Background Clear = ";
 	switch (m_Settings.doUniformBackGround)
@@ -140,6 +144,8 @@ void dae::DualRasterizer::ToggleFireMesh()
 {
 	m_Settings.doFireRender = !m_Settings.doFireRender;
 
+	if (!m_DoConsoleOut) return;
+
 	std::cout << "[DIRECT X] Fire Mesh Rendering = ";
 	switch (m_Settings.doFireRender)
 	{
@@ -155,6 +161,8 @@ void dae::DualRasterizer::ToggleFireMesh()
 void dae::DualRasterizer::ToggleNormalMap()
 {
 	m_Settings.doNormalMap = !m_Settings.doNormalMap;
+
+	if (!m_DoConsoleOut) return;
 
 	std::cout << "[SOFTWARE] Normal Map Sampling = ";
 	switch (m_Settings.doNormalMap)
@@ -172,6 +180,8 @@ void dae::DualRasterizer::ToggleDepthRender()
 {
 	m_Settings.doDepthVisual = !m_Settings.doDepthVisual;
 
+	if (!m_DoConsoleOut) return;
+
 	std::cout << "[SOFTWARE] Depth Buffer Rendering = ";
 	switch (m_Settings.doDepthVisual)
 	{
@@ -188,8 +198,26 @@ void dae::DualRasterizer::ToggleBoundsRender()
 {
 	m_Settings.doBBoxVisual = !m_Settings.doBBoxVisual;
 
+	if (!m_DoConsoleOut) return;
+
 	std::cout << "[SOFTWARE] BoundingBox Rendering = ";
 	switch (m_Settings.doBBoxVisual)
+	{
+	case true:
+		std::cout << "ON\n";
+		break;
+	case false:
+		std::cout << "OFF\n";
+		break;
+	}
+}
+
+void dae::DualRasterizer::ToggleConsoleOut()
+{
+	m_DoConsoleOut = !m_DoConsoleOut;
+
+	std::cout << "[CONSOLE] Console Output = ";
+	switch (m_DoConsoleOut)
 	{
 	case true:
 		std::cout << "ON\n";
@@ -205,6 +233,8 @@ void dae::DualRasterizer::CycleCullMode()
 {
 	m_Settings.cullMode = static_cast<CullMode>((static_cast<uint8_t>(m_Settings.cullMode) + 1) % static_cast<uint8_t>(CullMode::MODE_COUNT));
 	
+	if (!m_DoConsoleOut) return;
+
 	std::cout << "[SHARED] Cull Mode = ";
 	switch (m_Settings.cullMode)
 	{
@@ -223,6 +253,8 @@ void dae::DualRasterizer::CycleCullMode()
 void dae::DualRasterizer::CycleSampleTechnique()
 {
 	m_Settings.texSamplingTechnique = static_cast<SampleTechnique>((static_cast<uint8_t>(m_Settings.texSamplingTechnique) + 1) % static_cast<uint8_t>(SampleTechnique::TECHNIQUE_COUNT));
+
+	if (!m_DoConsoleOut) return;
 
 	std::cout << "[DIRECT X] Filtering Technique = ";
 	switch (m_Settings.texSamplingTechnique)
@@ -251,6 +283,8 @@ void dae::DualRasterizer::CycleLightingMode()
 {
 	m_Settings.lightingMode = static_cast<LightingMode>((static_cast<uint8_t>(m_Settings.lightingMode) + 1) % static_cast<uint8_t>(LightingMode::MODE_COUNT));
 
+	if (!m_DoConsoleOut) return;
+
 	std::cout << "[SOFTWARE] Lighting Mode = ";
 	switch (m_Settings.lightingMode)
 	{
@@ -273,20 +307,28 @@ void dae::DualRasterizer::CycleRenderer()
 {
 	m_UseSoftware = !m_UseSoftware;
 
-	std::cout << "[SHARED] Current Renderer = ";
+	if (m_DoConsoleOut) std::cout << "[SHARED] Current Renderer = ";
 	switch (m_UseSoftware)
 	{
 	case true:
-		std::cout << "SOFTWARE\n";
+		if (m_DoConsoleOut) std::cout << "SOFTWARE\n";
 		// HACK : Should just fix the camera rotation...
 		m_Camera.rotSpeed = m_SOFTWARE_CAM_SPEED;
 		break;
 	case false:
-		std::cout << "DIRECT X\n";
+		if (m_DoConsoleOut) std::cout << "DIRECT X\n";
 		// HACK : Should just fix the camera rotation...
 		m_Camera.rotSpeed = m_HARDWARE_CAM_SPEED;
 		break;
 	}
+}
+
+void dae::DualRasterizer::ResetCamera()
+{
+	if (m_DoConsoleOut) std::cout << "[SHARED] Camera Position Reset\n";
+
+	m_Camera.SetOrigin(m_CAMERA_START_POS);
+	m_Camera.ResetOrientation();
 }
 
 void dae::DualRasterizer::InitDirectX()
