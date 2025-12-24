@@ -71,6 +71,7 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 			break;
 		}
 
+		// Triangle Loop
 		for (size_t index{ }; index < indices.size() - sizeCheck; index += loopAdd) {
 			const int i0 = indices[index];
 			int i1 = indices[index + 1];
@@ -92,6 +93,20 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 			const Vector3 eV0 = v1Pos - v0Pos;
 			const Vector3 eV1 = v2Pos - v1Pos;
 			const Vector3 eV2 = v0Pos - v2Pos;
+
+			// Area Check (Face Culling)
+			const float area = Vector3::CrossZ(v1Pos - v0Pos, v2Pos - v0Pos);
+			float faceSign{ 1.0f };
+			switch (settings.cullMode) {
+			case CullMode::BACK_FACE:
+				if (area < 0) continue;
+				faceSign = 1.0f;
+				break;
+			case CullMode::FRONT_FACE:
+				if (area > 0) continue;
+				faceSign = -1.0f;
+				break;
+			}
 
 			constexpr float TRIANGLE_BOUNDS_OFFSET = 1.5f; // NOTE : Possibly check if needs to be bigger
 
@@ -116,13 +131,13 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 					const Vector3 pixel3{ static_cast<float>(px) + 0.5f, static_cast<float>(py) + 0.5f, 0.0f };
 
 					const Vector3 cV0 = pixel3 - v0Pos;
-					const float in0 = Vector3::CrossZ(eV0, cV0);
+					const float in0 = Vector3::CrossZ(eV0, cV0) * faceSign;
 
 					const Vector3 cV1 = pixel3 - v1Pos;
-					const float in1 = Vector3::CrossZ(eV1, cV1);
+					const float in1 = Vector3::CrossZ(eV1, cV1) * faceSign;
 
 					const Vector3 cV2 = pixel3 - v2Pos;
-					const float in2 = Vector3::CrossZ(eV2, cV2);
+					const float in2 = Vector3::CrossZ(eV2, cV2) * faceSign;
 
 					if (in0 >= 0 && in1 >= 0 && in2 >= 0) {
 						const float magnitude = in0 + in1 + in2;
