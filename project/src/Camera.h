@@ -135,8 +135,8 @@ namespace dae
 			if (pKeyboardState[SDL_SCANCODE_A] || pKeyboardState[SDL_SCANCODE_LEFT]) { movement -= right; movDirty = true; }
 
 			if (pKeyboardState[SDL_SCANCODE_SPACE] || pKeyboardState[SDL_SCANCODE_E]) { movement += Vector3::UnitY; movDirty = true; }
-			if (pKeyboardState[SDL_SCANCODE_LSHIFT] || pKeyboardState[SDL_SCANCODE_Q]) { movement -= Vector3::UnitY; movDirty = true; }
-			if (pKeyboardState[SDL_SCANCODE_LCTRL]) sprintModifier = 2.0f;
+			if (pKeyboardState[SDL_SCANCODE_LCTRL] || pKeyboardState[SDL_SCANCODE_Q]) { movement -= Vector3::UnitY; movDirty = true; }
+			if (pKeyboardState[SDL_SCANCODE_LSHIFT]) sprintModifier = 2.0f;
 
 			// Mouse Input
 			int mouseX{}, mouseY{};

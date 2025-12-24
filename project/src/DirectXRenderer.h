@@ -53,6 +53,8 @@ namespace dae
 		int m_Height{};
 
 		bool m_IsInitialized{ false };
+		
+		ColorRGB m_BackgroundColor{ 0.39f, 0.59f, 0.93f };
 
 		// DirectX
 		HRESULT InitializeDirectX();

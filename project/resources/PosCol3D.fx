@@ -2,7 +2,7 @@
 float gPI = 3.14159265358979323846264338327950288f; // Kinda yuck no?
 float gShininess = 25.0f;
 float gLightIntensity = 7.0f;
-float gAmbientLight = 0.03f;
+float gAmbientLight = 0.025f;
 float3 gLightDir = float3(0.577f, -0.577f, 0.576f);
 float3 gCameraPos : CameraPosition;
 float4x4 gWorld : World;

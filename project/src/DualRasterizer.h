@@ -98,6 +98,6 @@ namespace dae {
 
 		const float m_SOFTWARE_CAM_SPEED{ 0.6f };
 		const float m_HARDWARE_CAM_SPEED{ 7.5f };
-		const Vector3 m_CAMERA_START_POS{ 0.0f, 0.0f, -50.0f };
+		const Vector3 m_CAMERA_START_POS{ 0.0f, 0.0f, 0.0f };
 	};
 }

@@ -171,7 +171,7 @@ struct RenderSettings
 	// Shared
 	bool doRotation{ false };
 	bool doUniformBackGround{ false };
-	dae::ColorRGB uniformBackGround{ 0.25f, 0.25f, 0.25f };
+	dae::ColorRGB uniformBackGround{ 0.1f };
 	CullMode cullMode{ CullMode::BACK_FACE };
 	dae::Transform transform{};
 

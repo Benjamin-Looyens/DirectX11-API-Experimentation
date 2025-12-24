@@ -22,6 +22,8 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 
 	// Camera Initialization
 	m_Camera.Initialize(width, height, 45.0f, m_CAMERA_START_POS);
+	m_Camera.nearPlane = 0.1f;
+	m_Camera.farPlane = 100.0f;
 
 	// Texture Initialization
 	std::string vehicleDiffusePath{ "resources/vehicle_diffuse.png" };
@@ -57,6 +59,9 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 	Utils::ParseOBJ("resources/fireFX.obj", fireVerts, fireIndices);
 	// HACK : Will copy FULL vertex into input layout, even though it only uses POS and UV
 	m_AlphaMeshes.emplace_back(fireVerts, fireIndices); // Fire
+
+	// Initialize Transform
+	m_Settings.transform.SetTranslation({ 0.0f, 0.0f, 50.0f });
 
 	// DirectX Initialization
 	m_pDirectX = new DXRenderer(pWindow);

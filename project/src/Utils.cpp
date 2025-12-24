@@ -22,7 +22,7 @@ bool dae::Utils::FrustumCheck(const Vector4& v0, const Vector4& v1, const Vector
 
 bool dae::Utils::PixelShade(const Vertex_Out& vert, const TextureData& meshTexture, const LightingMode& lightMode, const VertexRenderMode& vertMode, const Vector3& lightDir, bool useNormalMap, ColorRGB& color_OUT)
 {
-	constexpr float AMBIENT_VALUE = 0.03f;
+	constexpr float AMBIENT_VALUE = 0.025f;
 	constexpr float LIGHT_INTENSITY = 7.0f; // NOTE : Could implement a Light Type that stores all the info for lights (direction, intensity, ambient)
 	constexpr float SHININESS = 25.0f;
 

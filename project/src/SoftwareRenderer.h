@@ -55,5 +55,7 @@ namespace dae
 
 		int m_Width{};
 		int m_Height{};
+
+		ColorRGB m_BackgroundColor{ 0.39f };
 	};
 }
