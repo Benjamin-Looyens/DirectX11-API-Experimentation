@@ -26,7 +26,7 @@ void ShutDown(SDL_Window* pWindow)
 void PrintInputs()
 {
 	std::cout <<
-		"**************** INPUTS ****************\n" <<
+		"\n**************** INPUTS ****************\n" <<
 		"H   - Print Input Mappings\n" <<
 		"O   - Toggle Console Output\n" <<
 		"**************** SHARED ****************\n" <<

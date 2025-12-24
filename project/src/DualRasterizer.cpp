@@ -57,7 +57,6 @@ dae::DualRasterizer::DualRasterizer(SDL_Window* pWindow)
 	std::vector<Vertex> fireVerts{};
 	std::vector<uint32_t> fireIndices{};
 	Utils::ParseOBJ("resources/fireFX.obj", fireVerts, fireIndices);
-	// HACK : Will copy FULL vertex into input layout, even though it only uses POS and UV
 	m_AlphaMeshes.emplace_back(fireVerts, fireIndices); // Fire
 
 	// Initialize Transform

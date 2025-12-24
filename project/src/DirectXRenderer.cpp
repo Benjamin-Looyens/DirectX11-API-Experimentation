@@ -1,9 +1,16 @@
 // Behavior Defines
 #define OUTPUT_DEVICE_DETAILS
 
+#define NOMINMAX // Necessary for not causing std::min and std::max conflicts for ColorRGB
+
 //External includes
 #include "SDL.h"
 #include "SDL_surface.h"
+
+#include <dxgi.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
+#include <d3dx11effect.h>
 
 // Standard includes
 #include <iostream>
@@ -23,7 +30,7 @@ DXRenderer::DXRenderer(SDL_Window* pWindow) :
 	m_pWindow(pWindow)
 {
 	//Initialize
-	SDL_GetWindowSize(pWindow, &m_Width, &m_Height); // TODO : Prob do this only in the DualRasterizer
+	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
 
 	//Initialize DirectX pipeline
 	const HRESULT result = InitializeDirectX();
@@ -73,8 +80,6 @@ DXRenderer::~DXRenderer()
 void DXRenderer::Update(const Timer* pTimer, Camera& cam, std::vector<Mesh>& solidMeshes, std::vector<Mesh>& alphaMeshes, ::RenderSettings& settings)
 {
 	if (!m_IsInitialized) return;
-
-	// HACK : Maybe I should just pass the world matrix, and not the Render settings entirely (so that it can be const in here)
 
 	// Calculate Current Context Variables
 	Matrix world = settings.transform.GetFull(); // Reference ?

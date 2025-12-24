@@ -49,18 +49,20 @@ public:
 
 	std::vector<Vertex_Out>& GetMutableVertsOut() { return m_VerticesOut; } // **MUTABLE** Vertices Out
 
+	void SetTopology(PrimitiveTopology newTop) { m_PrimTop = newTop; }
+	void SetVertMode(VertexRenderMode newMode) { m_VertMode = newMode; }
+
 private:
 	// Software / SDL
 	TextureData m_Textures{};
-	PrimitiveTopology m_PrimTop{ PrimitiveTopology::TriangleList }; // TODO : Able to set this somewhere
-	VertexRenderMode m_VertMode{ VertexRenderMode::TEXTURES }; // TODO : Able to set this somewhere
+	PrimitiveTopology m_PrimTop{ PrimitiveTopology::TriangleList };
+	VertexRenderMode m_VertMode{ VertexRenderMode::TEXTURES };
 
 	std::vector<Vertex> m_Vertices;
 	std::vector<Vertex_Out> m_VerticesOut;
 	std::vector<uint32_t> m_Indices;
 
 	// Direct X
-	uint32_t m_NumIndices{}; // TODO : When allowing software rasterizer, get rid of this and just use indices.size()
 	Effect* m_pEffect{};
 	ID3D11Buffer* m_pVertexBuffer{};
 	ID3D11Buffer* m_pIndexBuffer{};

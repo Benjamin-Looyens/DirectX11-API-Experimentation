@@ -29,9 +29,7 @@ Mesh::Mesh(ID3D11Device* pDevice, Effect* pEffect, std::vector<Vertex>& vertices
 	: Mesh(vertices, indices)
 {
 	InitDirectX(pDevice);
-
-	// HACK : Kinda eghghghg
-	m_pEffect = pEffect;
+	SetEffect(pEffect);
 }
 
 Mesh::~Mesh()
@@ -59,22 +57,19 @@ HRESULT Mesh::InitDirectX(ID3D11Device* pDevice)
 	if (FAILED(result)) return result;
 
 	// Create Index Buffer
-	m_NumIndices = static_cast<uint32_t>(m_Indices.size());
+	uint32_t numIndices = static_cast<uint32_t>(m_Indices.size());
 	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	bufferDesc.ByteWidth = sizeof(uint32_t) * m_NumIndices;
+	bufferDesc.ByteWidth = sizeof(uint32_t) * numIndices;
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
 	initData.pSysMem = m_Indices.data();
 
 	result = pDevice->CreateBuffer(&bufferDesc, &initData, &m_pIndexBuffer);
-	if (FAILED(result)) return result;
-
-	return result; // TODO : Check if need to do anything else before returning
+	
+	return result;
 }
 
-// TODO : Store Effect outside of mesh, then pass effect to the render function and use it
-// TODO : Differentiate DirectXRender & Normal Render? (in my software I use the mesh data not a render call)
 void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 {
 	// Set Primitive Topology
@@ -97,12 +92,12 @@ void Mesh::Render(ID3D11DeviceContext* pDeviceContext) const
 	pTechnique->GetDesc(&techDesc);
 	for (UINT index{ }; index < techDesc.Passes; ++index) {
 		pTechnique->GetPassByIndex(index)->Apply(0, pDeviceContext);
-		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+		pDeviceContext->DrawIndexed(static_cast<UINT>(m_Indices.size()), 0, 0);
 	}
 }
 
 void Mesh::SetEffect(Effect* pNewEffect)
 {
-	if (m_pEffect)  delete m_pEffect;
+	if (m_pEffect) delete m_pEffect;
 	m_pEffect = pNewEffect;
 }

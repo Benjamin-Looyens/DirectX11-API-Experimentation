@@ -51,7 +51,7 @@ namespace dae
 
 	HRESULT Texture::InitDirectX(ID3D11Device* pDevice)
 	{
-		if (m_HasInitializedDirectX) return 0; // TODO : Check if this is correct syntax for Success in HRESULT
+		if (m_HasInitializedDirectX) return S_OK;
 
 		DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		D3D11_TEXTURE2D_DESC desc{};
@@ -84,7 +84,7 @@ namespace dae
 		if (FAILED(result)) return result; // Texture: ResourceView failed to create
 
 		m_HasInitializedDirectX = true;
-		return result; // TODO : Check if I should return something else
+		return result;
 	}
 
 	ColorRGB Texture::SoftwareSample(const Vector2& uv) const

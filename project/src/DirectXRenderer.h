@@ -6,13 +6,6 @@
 #include "SDL_surface.h"
 #include "SDL_image.h"
 
-// HACK : Are these necessary to include?
-// DirectX Headers
-#include <dxgi.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <d3dx11effect.h>
-
 // Framework Headers
 #include "Timer.h"
 #include "DataTypes.h"
@@ -22,6 +15,15 @@ class Mesh;
 class Effect;
 class SolidEffect;
 class AlphaEffect;
+
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct IDXGISwapChain;
+struct ID3D11Texture2D;
+struct ID3D11DepthStencilView;
+struct ID3D11Resource;
+struct ID3D11RenderTargetView;
+struct ID3D11RasterizerState;
 
 namespace dae {
 	struct Camera;

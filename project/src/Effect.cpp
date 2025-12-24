@@ -170,7 +170,7 @@ SolidEffect::SolidEffect(ID3D11Device* pDevice, const std::wstring& filePath) : 
 
 	// Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
-	GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same for each technique, HOWEVER it is strange laying it out based on one of the techniques?
+	GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc);
 
 	ID3D11InputLayout* pInputLayout{};
 	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &pInputLayout);
@@ -250,7 +250,7 @@ AlphaEffect::AlphaEffect(ID3D11Device* pDevice, const std::wstring& filePath)
 
 	// Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
-	GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc); // HACK : The input layout should be the same for each technique, HOWEVER it is strange laying it out based on one of the techniques?
+	GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc);
 
 	ID3D11InputLayout* pInputLayout = GetInputLayout();
 	const HRESULT result = pDevice->CreateInputLayout(vertexDesc, numElements, passDesc.pIAInputSignature, passDesc.IAInputSignatureSize, &pInputLayout);
