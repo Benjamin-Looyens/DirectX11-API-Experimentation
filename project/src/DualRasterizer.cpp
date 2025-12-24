@@ -314,27 +314,43 @@ void dae::DualRasterizer::InitDirectX()
 		if (FAILED(result)) assert(false && "Alpha Mesh DX Initialization Failed!");
 	}
 
-	// Create & Add Effects
+	// Create & Add Solid Effects
 	std::wstring vehicleEffectPath{ L"resources/PosCol3D.fx" };
-	SolidEffect* pVehicleEffect = new SolidEffect(pDevice, vehicleEffectPath);
+	m_pSolidEffects.push_back(new SolidEffect(pDevice, vehicleEffectPath));
 
-	// TODO : Access textures in sets of 4, which are then added to mesh TextureData
-	// HACK : Temporarily accessing by index (NEED TO FIX!!)
-	pVehicleEffect->SetDiffuseMap(m_pSolidTextures[0]);
-	pVehicleEffect->SetNormalMap(m_pSolidTextures[1]);
-	pVehicleEffect->SetSpecularMap(m_pSolidTextures[2]); 
-	pVehicleEffect->SetGlossinessMap(m_pSolidTextures[3]);
+	// Link Solid Meshes -> Effects
+	for (size_t index{}; index < m_SolidMeshes.size(); index++) {
+		auto& pCurEffect = m_pSolidEffects[index];
+		auto& pCurMesh = m_SolidMeshes[index];
 
+		dae::Texture* pDiffuse =	m_pSolidTextures[0 + index];
+		dae::Texture* pNormal =		m_pSolidTextures[1 + index];
+		dae::Texture* pSpecular =	m_pSolidTextures[2 + index];
+		dae::Texture* pGloss =		m_pSolidTextures[3 + index];
+
+		pCurEffect->SetDiffuseMap(pDiffuse);
+		pCurEffect->SetNormalMap(pNormal);
+		pCurEffect->SetSpecularMap(pSpecular);
+		pCurEffect->SetGlossinessMap(pGloss);
+
+		pCurMesh.SetEffect(pCurEffect);
+	}
+
+	// Create & Add Alpha Effects
 	std::wstring fireEffectPath{ L"resources/Fire.fx" };
-	AlphaEffect* pFireEffect = new AlphaEffect(pDevice, fireEffectPath);
+	m_pAlphaEffects.push_back(new AlphaEffect(pDevice, fireEffectPath));
 
-	// HACK : Temporarily accessing by index (NEED TO FIX!!)
-	pFireEffect->SetDiffuseMap(m_pAlphaTextures[0]);
+	// Link Alpha Meshes -> Effects
+	for (size_t index{}; index < m_AlphaMeshes.size(); index++) {
+		auto& pCurEffect = m_pAlphaEffects[index];
+		auto& pCurMesh = m_AlphaMeshes[index];
 
-	// Effect -> Mesh Linking
-	// HACK : Temporarily accessing by index (NEED TO FIX!!)
-	m_SolidMeshes[0].SetEffect(pVehicleEffect);
-	m_AlphaMeshes[0].SetEffect(pFireEffect);
+		dae::Texture* pDiffuse = m_pSolidTextures[index];
+
+		pCurEffect->SetDiffuseMap(m_pAlphaTextures[index]);
+
+		m_AlphaMeshes[index].SetEffect(pCurEffect);
+	}
 }
 
 void dae::DualRasterizer::InitSoftware()
