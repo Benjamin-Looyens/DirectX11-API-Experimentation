@@ -12,8 +12,7 @@
 #include <d3dcompiler.h>
 #include <d3dx11effect.h>
 
-// Framework Headers
-#include "Timer.h"
+// Project Headers
 #include "Camera.h"
 #include "DataTypes.h"
 #include "Mesh.h"
@@ -24,7 +23,6 @@ namespace dae {
 	class DXRenderer;
 	class Timer;
 	class Texture;
-
 	class Effect;
 	class SolidEffect;
 	class AlphaEffect;

@@ -30,9 +30,9 @@ namespace dae {
 
 		// Direct X
 		HRESULT InitDirectX(ID3D11Device* pDevice);
-		void SetEffect(Effect* pNewEffect); // Really kind of a mess to call InitDirectX -> SetEffect
+		void SetEffect(Effect* pNewEffect); // kind of a mess to call InitDirectX -> SetEffect
 		Effect* GetEffect() { return m_pEffect; }
-		void Render(ID3D11DeviceContext* pDeviceContext) const; // Really hate that its not const ref
+		void Render(ID3D11DeviceContext* pDeviceContext) const;
 
 		// Software 
 		const std::vector<Vertex>& GetVertices() const { return m_Vertices; }

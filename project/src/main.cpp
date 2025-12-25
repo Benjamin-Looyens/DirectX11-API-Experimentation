@@ -15,6 +15,9 @@
 	#include "LeakDetector.h"
 #endif
 
+#include "Utils.h"
+#include "ConsoleColorDefines.h"
+
 using namespace dae;
 
 void ShutDown(SDL_Window* pWindow)
@@ -25,20 +28,30 @@ void ShutDown(SDL_Window* pWindow)
 
 void PrintInputs()
 {
+	Utils::SetConsoleOutColor(dualRasterColors::CONSOLE_COLOR);
 	std::cout <<
 		"\n**************** INPUTS ****************\n" <<
 		"H   - Print Input Mappings\n" <<
-		"O   - Toggle Console Output\n" <<
+		"O   - Toggle Console Output\n";
+
+	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
+	std::cout <<
 		"**************** SHARED ****************\n" <<
 		"R   - Reset Camera Position & Rotation\n" <<
 		"F1  - Switch Between DirectX & Software\n" <<
 		"F2  - Toggle Mesh Rotation\n" <<
 		"F9  - Cycle Between Cull Modes\n" <<
 		"F10 - Toggle Uniform Background Clear\n" <<
-		"F11 - Toggle Printing FPS\n" <<
+		"F11 - Toggle Printing FPS\n";
+
+	Utils::SetConsoleOutColor(dualRasterColors::HARDWARE_COLOR);
+	std::cout <<
 		"*************** HARDWARE ***************\n" <<
 		"F3  - Toggle Fire Mesh Rendering\n" <<
-		"F4  - Cycle Sampling Method\n" <<
+		"F4  - Cycle Sampling Method\n";
+
+	Utils::SetConsoleOutColor(dualRasterColors::SOFTWARE_COLOR);
+	std::cout <<
 		"*************** SOFTWARE ***************\n" <<
 		"F5  - Cycle Shading Modes\n" <<
 		"F6  - Toggle Normal Map Sampling\n" <<
@@ -157,12 +170,16 @@ int main(int argc, char* args[])
 			if (printTimer >= 1.f)
 			{
 				printTimer = 0.f;
-				if (doFps)
-				std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+				if (doFps) {
+					Utils::SetConsoleOutColor(dualRasterColors::FPS_COLOR);
+					std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+				}
 			}
 		}
 	}
 	pTimer->Stop();
+
+	Utils::SetConsoleOutColor(stdConsoleColors::WHITE);
 
 	//Shutdown "framework"
 	delete pRenderer;

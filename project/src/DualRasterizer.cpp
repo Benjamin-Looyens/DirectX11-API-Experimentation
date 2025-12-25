@@ -4,9 +4,9 @@
 #include "SoftwareRenderer.h"
 
 #include "Utils.h"
-
+#include "ConsoleColorDefines.h"
+#include "Timer.h"
 #include "Texture.h"
-#include "Mesh.h"
 #include "Effect.h"
 
 // External Includes
@@ -114,6 +114,7 @@ void dae::DualRasterizer::ToggleRotation()
 
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
 	std::cout << "[SHARED] Mesh Rotation = ";
 	switch (m_Settings.doRotation)
 	{
@@ -132,6 +133,7 @@ void dae::DualRasterizer::ToggleUniformClear()
 
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
 	std::cout << "[SHARED] Uniform Background Clear = ";
 	switch (m_Settings.doUniformBackGround)
 	{
@@ -150,7 +152,8 @@ void dae::DualRasterizer::ToggleFireMesh()
 
 	if (!m_DoConsoleOut) return;
 
-	std::cout << "[DIRECT X] Fire Mesh Rendering = ";
+	Utils::SetConsoleOutColor(dualRasterColors::HARDWARE_COLOR);
+	std::cout << "[HARDWARE] Fire Mesh Rendering = ";
 	switch (m_Settings.doFireRender)
 	{
 	case true:
@@ -168,6 +171,7 @@ void dae::DualRasterizer::ToggleNormalMap()
 
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SOFTWARE_COLOR);
 	std::cout << "[SOFTWARE] Normal Map Sampling = ";
 	switch (m_Settings.doNormalMap)
 	{
@@ -186,6 +190,7 @@ void dae::DualRasterizer::ToggleDepthRender()
 
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SOFTWARE_COLOR);
 	std::cout << "[SOFTWARE] Depth Buffer Rendering = ";
 	switch (m_Settings.doDepthVisual)
 	{
@@ -204,6 +209,7 @@ void dae::DualRasterizer::ToggleBoundsRender()
 
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SOFTWARE_COLOR);
 	std::cout << "[SOFTWARE] BoundingBox Rendering = ";
 	switch (m_Settings.doBBoxVisual)
 	{
@@ -220,6 +226,7 @@ void dae::DualRasterizer::ToggleConsoleOut()
 {
 	m_DoConsoleOut = !m_DoConsoleOut;
 
+	Utils::SetConsoleOutColor(dualRasterColors::CONSOLE_COLOR);
 	std::cout << "[CONSOLE] Console Output = ";
 	switch (m_DoConsoleOut)
 	{
@@ -239,6 +246,7 @@ void dae::DualRasterizer::CycleCullMode()
 	
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
 	std::cout << "[SHARED] Cull Mode = ";
 	switch (m_Settings.cullMode)
 	{
@@ -260,7 +268,8 @@ void dae::DualRasterizer::CycleSampleTechnique()
 
 	if (!m_DoConsoleOut) return;
 
-	std::cout << "[DIRECT X] Filtering Technique = ";
+	Utils::SetConsoleOutColor(dualRasterColors::HARDWARE_COLOR);
+	std::cout << "[HARDWARE] Sampling Technique = ";
 	switch (m_Settings.texSamplingTechnique)
 	{
 	case SampleTechnique::POINT:
@@ -289,6 +298,7 @@ void dae::DualRasterizer::CycleLightingMode()
 
 	if (!m_DoConsoleOut) return;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SOFTWARE_COLOR);
 	std::cout << "[SOFTWARE] Lighting Mode = ";
 	switch (m_Settings.lightingMode)
 	{
@@ -311,6 +321,7 @@ void dae::DualRasterizer::CycleRenderer()
 {
 	m_UseSoftware = !m_UseSoftware;
 
+	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
 	if (m_DoConsoleOut) std::cout << "[SHARED] Current Renderer = ";
 	switch (m_UseSoftware)
 	{
@@ -329,6 +340,7 @@ void dae::DualRasterizer::CycleRenderer()
 
 void dae::DualRasterizer::ResetCamera()
 {
+	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
 	if (m_DoConsoleOut) std::cout << "[SHARED] Camera Position Reset\n";
 
 	m_Camera.SetOrigin(m_CAMERA_START_POS);

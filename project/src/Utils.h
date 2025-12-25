@@ -8,6 +8,8 @@ namespace dae
 {
 	namespace Utils
 	{
+		void SetConsoleOutColor(int colorIndex);
+
 		// Frustum Check for each Vertex
 		bool FrustumCheck(const Vector4& v0, const Vector4& v1, const Vector4& v2);
 

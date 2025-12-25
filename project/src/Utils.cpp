@@ -1,4 +1,12 @@
 #include "Utils.h"
+#include <iostream>
+
+// Based on: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
+void dae::Utils::SetConsoleOutColor(int colorIndex)
+{
+	std::cout << "\033[" << colorIndex << "m";
+	//std::cout << "\033[38;5;" << colorIndex << "m"
+}
 
 bool dae::Utils::FrustumCheck(const Vector4& v0, const Vector4& v1, const Vector4& v2)
 {
