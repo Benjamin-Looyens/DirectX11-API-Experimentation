@@ -17,7 +17,6 @@ struct ID3DX11EffectShaderResourceVariable;
 namespace dae {
 	class Texture;
 
-	// TODO : Rule Of 5?
 	class Effect
 	{
 	public:
@@ -32,6 +31,11 @@ namespace dae {
 		void SetSampleState(SampleTechnique tech);
 
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& filePath);
+
+		Effect(const Effect& other) = delete;
+		Effect(const Effect&& other) = delete;
+		Effect& operator=(const Effect& other) = delete;
+		Effect& operator=(const Effect&& other) = delete;
 
 	protected:
 		void SetInputLayout(ID3D11InputLayout* pNewLayout);
@@ -65,6 +69,11 @@ namespace dae {
 		ID3DX11EffectVectorVariable* const GetCameraPos() const { return m_pCameraPos; };
 		ID3DX11EffectMatrixVariable* const GetWorld() const { return m_pWorldMatrix; };
 
+		SolidEffect(const SolidEffect& other) = delete;
+		SolidEffect(const SolidEffect&& other) = delete;
+		SolidEffect& operator=(const SolidEffect& other) = delete;
+		SolidEffect& operator=(const SolidEffect&& other) = delete;
+
 	private:
 		// Variables
 		ID3DX11EffectVectorVariable* m_pCameraPos{};
@@ -84,6 +93,11 @@ namespace dae {
 		~AlphaEffect() override;
 
 		void SetDiffuseMap(dae::Texture* pDiffuseTexture);
+
+		AlphaEffect(const AlphaEffect& other) = delete;
+		AlphaEffect(const AlphaEffect&& other) = delete;
+		AlphaEffect& operator=(const AlphaEffect& other) = delete;
+		AlphaEffect& operator=(const AlphaEffect&& other) = delete;
 
 	private:
 		// Textures
