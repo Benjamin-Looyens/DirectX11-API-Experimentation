@@ -168,7 +168,7 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 						if (zDepth < m_pDepthBuffer[pixelIndex]) {
 							m_pDepthBuffer[pixelIndex] = zDepth;
 
-							ColorRGB finalColor{ Utils::Remap(zDepth, 0.9f, 1.0f, 0.0f, 1.0f) };
+							ColorRGB finalColor{ Utils::Remap(zDepth, 0.995f, 1.0f, 0.0f, 1.0f) };
 							if (settings.doDepthVisual) {
 								UpdateColor(pixelIndex, finalColor);
 								continue;

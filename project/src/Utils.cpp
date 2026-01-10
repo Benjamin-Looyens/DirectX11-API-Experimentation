@@ -5,7 +5,6 @@
 void dae::Utils::SetConsoleOutColor(int colorIndex)
 {
 	std::cout << "\033[" << colorIndex << "m";
-	//std::cout << "\033[38;5;" << colorIndex << "m"
 }
 
 bool dae::Utils::FrustumCheck(const Vector4& v0, const Vector4& v1, const Vector4& v2)
