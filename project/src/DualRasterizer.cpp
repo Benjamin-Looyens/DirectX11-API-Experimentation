@@ -321,19 +321,17 @@ void dae::DualRasterizer::CycleRenderer()
 {
 	m_UseSoftware = !m_UseSoftware;
 
+	if (!m_DoConsoleOut) return;
+
 	Utils::SetConsoleOutColor(dualRasterColors::SHARED_COLOR);
-	if (m_DoConsoleOut) std::cout << "[SHARED] Current Renderer = ";
+	std::cout << "[SHARED] Current Renderer = ";
 	switch (m_UseSoftware)
 	{
 	case true:
-		if (m_DoConsoleOut) std::cout << "SOFTWARE\n";
-		// HACK : Should just fix the camera rotation...
-		m_Camera.rotSpeed = m_SOFTWARE_CAM_SPEED;
+		std::cout << "SOFTWARE\n";
 		break;
 	case false:
-		if (m_DoConsoleOut) std::cout << "DIRECT X\n";
-		// HACK : Should just fix the camera rotation...
-		m_Camera.rotSpeed = m_HARDWARE_CAM_SPEED;
+		std::cout << "DIRECT X\n";
 		break;
 	}
 }

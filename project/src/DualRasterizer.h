@@ -72,7 +72,7 @@ namespace dae {
 
 		// Common Members
 		Camera m_Camera;
-		RenderSettings m_Settings{}; // HACK : WHY DO I NEED TO SPECIFY IT IS IN GLOBAL NAMESPACE ??????????????????????? (also in DirectX Renderer)
+		RenderSettings m_Settings{};
 
 		// Owned Data Vectors
 		std::vector<Mesh> m_SolidMeshes{}; 
@@ -90,8 +90,6 @@ namespace dae {
 		bool m_UseSoftware{ false };
 		bool m_DoConsoleOut{ true };
 
-		const float m_SOFTWARE_CAM_SPEED{ 0.6f };
-		const float m_HARDWARE_CAM_SPEED{ 7.5f };
 		const Vector3 m_CAMERA_START_POS{ 0.0f, 0.0f, 0.0f };
 	};
 }
