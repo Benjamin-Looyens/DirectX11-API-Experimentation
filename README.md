@@ -1,5 +1,5 @@
 # DirectX11 Hardware Rasterizer
-Simple DirectX11 setup with SDL2 for the course "Graphics Programming" in Howest DAE Game Development. The project implements the primary rasterizer pipeline (`Input assembler` -> `Vertex Shader` -> `Geometry Shader` -> `Rasterization` -> `Pixel Shader` -> `Output Merger` -> `Render Target` -> `Swapchain`).
+Simple DirectX11 setup with SDL2 for the course "Graphics Programming" in Howest DAE Game Development. The project implements the primary rasterizer pipeline (`Input assembler` -> `Vertex Shader` -> `Geometry Shader` -> `Rasterization` -> `Pixel Shader` -> `Output Merger` -> `Render Target` -> `Swapchain`). On top of this, the setup contains a [software rasterizer](https://github.com/Benjamin-Looyens/Software-Rasterizer) that was implemented separately.
 
 ## Features
 - Perspective camera:
