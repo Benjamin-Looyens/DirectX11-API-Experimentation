@@ -56,6 +56,8 @@ namespace dae
 		int m_Width{};
 		int m_Height{};
 
+		bool m_FullBbox{ true };
+
 		ColorRGB m_BackgroundColor{ 0.39f };
 	};
 }

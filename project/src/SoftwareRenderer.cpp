@@ -133,7 +133,8 @@ void SoftwareRenderer::Render(const std::vector<Mesh>& solidMeshes, const std::v
 					const int pixelIndex = px + (py * m_Width);
 
 					if (settings.doBBoxVisual) {
-						if ((px == minX || py == minY) ||
+						if (m_FullBbox || 
+							(px == minX || py == minY) ||
 							(px == maxX - 1 || py == maxY - 1)) {
 							ColorRGB finalColor = (v0.color + v1.color + v2.color) / 3; // Average
 							UpdateColor(pixelIndex, finalColor);

@@ -1,8 +1,13 @@
 #pragma once
+
+// Standard Includes
 #include <cassert>
+
+// External Includes
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
+// Project Includes
 #include "Matrix.h"
 #include "Vector3.h"
 #include "Vector4.h"
